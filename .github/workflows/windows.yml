@@ -111,13 +111,13 @@ jobs:
           & ${{ github.workspace }}/scripts/windows-publish.ps1 ${env:archiveName} ${env:targetName}
           # 记录packageName给后续step
           $name = ${env:archiveName}
-          echo "::setOutput name=packageName::$name"
+          echo "::set-output name=packageName::$name"
           ls
       # tag 查询github-Release
       # 上传artifacts          
       - uses: actions/upload-artifact@v2
         with:
-          name: archiveName
+          name: ${{ steps.package.outputs.packageName }}
           path: ${{ github.workspace }}/build/output
       # tag 上传Release
       - name: uploadRelease
@@ -125,7 +125,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/build/${{ steps.package.outputs.archiveName }}.zip
-          asset_name: ${{ steps.package.outputs.archiveName }}.zip
+          file: ${{ github.workspace }}/build/${{ steps.package.outputs.packageName }}.zip
+          asset_name: ${{ steps.package.outputs.packageName }}.zip
           tag: ${{ github.ref }}
           overwrite: true 
