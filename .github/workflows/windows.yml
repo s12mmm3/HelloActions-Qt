@@ -28,7 +28,7 @@ jobs:
             msvc_arch: x64
             qt_arch_install: msvc2019_64
     env:
-      targetName: HelloActions-Qt.exe
+      targetName: QCloudMusicApi.dll
     # 步骤
     steps:        
       # 拉取代码
@@ -45,7 +45,7 @@ jobs:
           conan profile detect --force
           conan install .
           ls build/generators/
-          build/generators/conanrunenv-release-x86_64.bat
+          build/generators/conanrun.bat
       # 安装Qt
       - name: Install Qt
         # 使用外部action。这个action专门用来安装Qt
@@ -84,7 +84,7 @@ jobs:
           ls
           cmake --build . --target INSTALL --config release
           ls
-          cd ${{ github.workspace }}/build/release
+          cd ${{ github.workspace }}/build/bin
           ls
       # 打包 
       - name: package
