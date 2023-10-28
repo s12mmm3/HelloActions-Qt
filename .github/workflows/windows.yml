@@ -117,7 +117,7 @@ jobs:
       # 上传artifacts          
       - uses: actions/upload-artifact@v2
         with:
-          name: ${{ steps.package.outputs.packageName }}
+          name: archiveName
           path: ${{ github.workspace }}/build/output
       # tag 上传Release
       - name: uploadRelease
