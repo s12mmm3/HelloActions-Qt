@@ -40,6 +40,7 @@ jobs:
         run: |
           $qt_Path=${env:QtPath}
           $env:QT_DIR=$qt_Path
+          $env:CMAKE_PREFIX_PATH:PATH=$qt_Path
           $Env:PATH+=";${env:QtPath}/bin"
           qmake -v
           Get-ChildItem Env:
