@@ -54,7 +54,7 @@ jobs:
         run: |
           pip install conan
           conan -v
-          conan install 
+          conan install .
           ls build/generators/
           build/generators/conanrunenv-release-x86_64.bat
       # CMake Build
