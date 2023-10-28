@@ -40,7 +40,8 @@ jobs:
         run: |
           $qt_Path=${env:QtPath}
           $env:QT_DIR=$qt_Path
-          $Env:PATH+=";$qt_Path/bin"
+          $Env:PATH+=";${env:QtPath}/bin"
+          qmake -v
           Get-ChildItem Env:
       # 安装Qt
       - name: Install Qt
