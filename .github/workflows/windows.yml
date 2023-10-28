@@ -39,8 +39,8 @@ jobs:
           QtPath: ../Qt/${{matrix.qt_ver}}/${{matrix.qt_arch_install}}
         run: |
           $qt_Path=${env:QtPath}
-          echo $env:QT_DIR=$qt_Path >> $GITHUB_ENV
-          echo $qt_Path/bin >> $GITHUB_PATH
+          $env:QT_DIR=$qt_Path
+          $Env:PATH+=";$qt_Path/bin"
           Get-ChildItem Env:
       # 安装Qt
       - name: Install Qt
