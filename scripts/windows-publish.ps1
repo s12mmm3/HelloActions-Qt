@@ -26,8 +26,8 @@ Write-Host "scriptDir" $scriptDir
 function Main() {
 
     New-Item -ItemType Directory $archiveName
-    # 拷贝生成文件
-    Copy-Item output\\* $archiveName\
+    # # 拷贝生成文件
+    # Copy-Item output\\* $archiveName\
 
     Tree $archiveName\ /F
     # 拷贝依赖
@@ -42,7 +42,7 @@ function Main() {
     # $sdkDll="{0}Redist\{1}ucrt\DLLs\{2}\*.dll" -f $env:winSdkDir.Trim(),$env:winSdkVer.Trim(),$env:msvcArch
     # Copy-Item $sdkDll $archiveName\
     # 打包zip
-    Compress-Archive -Path $archiveName $archiveName'.zip'
+    Compress-Archive -Path output $archiveName'.zip'
 }
 
 if ($null -eq $archiveName || $null -eq $targetName) {
