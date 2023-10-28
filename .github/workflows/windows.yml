@@ -22,7 +22,6 @@ jobs:
             qt_arch: win64_msvc2019_64
             msvc_arch: x64
             qt_arch_install: msvc2019_64
-            modules: qthttpserver
     env:
       targetName: QCloudMusicApi.dll
     # 步骤
@@ -65,7 +64,6 @@ jobs:
         shell: cmd
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.msvc_arch }}
-          ls
           mkdir build
           cd build
           cmake --version
@@ -82,10 +80,7 @@ jobs:
         shell: pwsh
         run: |
           cd ${{ github.workspace }}/build
-          ls
           cmake --build . --target INSTALL --config release
-          ls
-          cd ${{ github.workspace }}/build/bin
           ls
       # 打包 
       - name: package
@@ -95,6 +90,8 @@ jobs:
           msvcArch: ${{ matrix.msvc_arch }}          
         shell: pwsh
         run: |
+          cd ${{ github.workspace }}/build/output
+          ls
           & scripts\windows-publish.ps1 ${env:archiveName} ${env:targetName}
           # 记录packageName给后续step
            $name = ${env:archiveName}
