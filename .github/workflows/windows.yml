@@ -22,11 +22,6 @@ jobs:
             qt_arch: win64_msvc2019_64
             msvc_arch: x64
             qt_arch_install: msvc2019_64
-          # 6.6.0
-          - qt_ver: 6.6.0
-            qt_arch: win64_msvc2019_64
-            msvc_arch: x64
-            qt_arch_install: msvc2019_64
     env:
       targetName: QCloudMusicApi.dll
     # 步骤
@@ -37,12 +32,17 @@ jobs:
           fetch-depth: 1
       # Conan Install
       - name: Conan Install
-        id: conan
+        id: conanInstall
         shell: pwsh
         run: |
           pip install conan
           conan -v
           conan profile detect --force
+      # Conan Run
+      - name: Conan Run
+        id: conanRun
+        shell: pwsh
+        run: |
           conan install .
           ls build/generators/
           build/generators/conanrun.bat
