@@ -31,7 +31,7 @@ function Main() {
 
     Tree output\ /F
     # 拷贝依赖
-    windeployqt --qmldir . --plugindir $archiveName\plugins --no-translations --compiler-runtime $archiveName\bin\$targetName
+    windeployqt --qmldir . --plugindir $archiveName\plugins --no-translations --compiler-runtime output\bin\$targetName
     # # 删除不必要的文件
     # $excludeList = @("*.qmlc", "*.ilk", "*.exp", "*.lib", "*.pdb")
     # Remove-Item -Path $archiveName -Include $excludeList -Recurse -Force
