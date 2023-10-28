@@ -28,6 +28,11 @@ function Main() {
     New-Item -ItemType Directory $archiveName
     # 拷贝生成文件
     Copy-Item output\\* $archiveName\
+
+    Get-ChildItem -Path $archiveName\
+    Get-ChildItem -Path $archiveName\bin\
+    Get-ChildItem -Path $archiveName\lib\
+    Get-ChildItem -Path $archiveName\include\
     # 拷贝依赖
     windeployqt --qmldir . --plugindir $archiveName\plugins --no-translations --compiler-runtime $archiveName\bin\$targetName
     # # 删除不必要的文件
