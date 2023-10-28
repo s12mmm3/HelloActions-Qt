@@ -39,8 +39,9 @@ jobs:
           QtPath: ../Qt/${{matrix.qt_ver}}/${{matrix.qt_arch_install}}
         run: |
           $qt_Path=${env:QtPath}
-          echo $env:QT_DIR=$qt_Path >> %GITHUB_ENV%
-          echo $qt_Path/bin >> %GITHUB_PATH%
+          echo $env:QT_DIR=$qt_Path >> $GITHUB_ENV
+          echo $qt_Path/bin >> $GITHUB_PATH
+          Get-ChildItem Env:
       # 安装Qt
       - name: Install Qt
         if: steps.WindowsCacheQt.outputs.cache-hit != 'true'
