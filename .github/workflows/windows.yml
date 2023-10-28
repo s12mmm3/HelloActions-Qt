@@ -39,7 +39,7 @@ jobs:
           QtPath: ../Qt/${{matrix.qt_ver}}/${{matrix.qt_arch_install}}
         run: |
           $qt_Path=${env:QtPath}
-          echo "QT_DIR=$qt_Path" >> "$GITHUB_ENV"
+          echo "QT_DIR=$qt_Path" >> $GITHUB_ENV
           echo "$qt_Path/bin" >> $GITHUB_PATH
       # 安装Qt
       - name: Install Qt
@@ -58,22 +58,22 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
-      # Conan Install
-      - name: Conan Install
-        id: conanInstall
-        shell: pwsh
-        run: |
-          pip install conan
-          conan -v
-          conan profile detect --force
-      # Conan Run
-      - name: Conan Run
-        id: conanRun
-        shell: pwsh
-        run: |
-          conan install .
-          ls build/generators/
-          build/generators/conanrun.bat
+      # # Conan Install
+      # - name: Conan Install
+      #   id: conanInstall
+      #   shell: pwsh
+      #   run: |
+      #     pip install conan
+      #     conan -v
+      #     conan profile detect --force
+      # # Conan Run
+      # - name: Conan Run
+      #   id: conanRun
+      #   shell: pwsh
+      #   run: |
+      #     conan install .
+      #     ls build/generators/
+      #     build/generators/conanrun.bat
       # CMake Build
       - name: CMake Build
         id: build
