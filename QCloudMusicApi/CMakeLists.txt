@@ -26,4 +26,4 @@ target_link_libraries(QCloudMusicApi Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_
 target_compile_definitions(QCloudMusicApi PRIVATE QCLOUDMUSICAPI_LIBRARY)
 
 set(PUBLIC_HEADERS module.h)
-install(FILES ${PUBLIC_HEADERS} DESTINATION ${CMAKE_BINARY_DIR}/include)
+install(FILES ${PUBLIC_HEADERS} DESTINATION ${CMAKE_HEADER_OUTPUT_DIRECTORY})
