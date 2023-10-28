@@ -25,11 +25,11 @@ Write-Host "scriptDir" $scriptDir
 
 function Main() {
 
-    New-Item -ItemType Directory $archiveName
+    # New-Item -ItemType Directory $archiveName
     # # 拷贝生成文件
     # Copy-Item output\\* $archiveName\
 
-    Tree $archiveName\ /F
+    Tree output\ /F
     # 拷贝依赖
     windeployqt --qmldir . --plugindir $archiveName\plugins --no-translations --compiler-runtime $archiveName\bin\$targetName
     # # 删除不必要的文件
