@@ -45,6 +45,7 @@ jobs:
           arch: ${{ matrix.qt_arch }}
           cache: 'true'
           aqtversion: '==2.0.5'
+          modules: ${{ matrix.modules }}
       # 拉取代码
       - uses: actions/checkout@v2
         with:
