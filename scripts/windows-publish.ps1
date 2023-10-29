@@ -23,6 +23,21 @@ $currentDir = Get-Location
 Write-Host "currentDir" $currentDir
 Write-Host "scriptDir" $scriptDir
 
+function DeployQt {
+    # 定义一个参数，类型为字符串，名为 targetName
+    param (
+        [string]$targetName
+    )
+
+    # 检查文件是否存在
+    if (Test-Path -Path "output\bin\$targetName") {
+        # 如果文件存在，执行 windeployqt 命令
+        windeployqt --qmldir . --plugindir output\plugins --no-translations --compiler-runtime output\bin\$targetName
+    } else {
+        # 如果文件不存在，输出提示信息
+        Write-Host "$targetName does not exist."
+    }
+}
 function Main() {
 
     # New-Item -ItemType Directory $archiveName
@@ -31,7 +46,11 @@ function Main() {
 
     Tree output\ /F
     # 拷贝依赖
-    windeployqt --qmldir . --plugindir output\plugins --no-translations --compiler-runtime output\bin\$targetName
+    DeployQt -targetName Test.exe
+    DeployQt -targetName ApiServer.exe
+    DeployQt -targetName QCloudMusicApi.dll
+    DeployQt -targetName CApi.dll
+    # windeployqt --qmldir . --plugindir output\plugins --no-translations --compiler-runtime output\bin\$targetName
     # # 删除不必要的文件
     # $excludeList = @("*.qmlc", "*.ilk", "*.exp", "*.lib", "*.pdb")
     # Remove-Item -Path $archiveName -Include $excludeList -Recurse -Force
