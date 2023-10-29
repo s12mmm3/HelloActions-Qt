@@ -55,7 +55,7 @@ jobs:
           # Target platform for build
           # target: ${{ matrix.qt_target }}
           arch: ${{ matrix.qt_arch }}
-          cached: 'true'
+          cache: 'true'
           aqtversion: '==2.0.5'
       # 拉取代码
       - uses: actions/checkout@v2
