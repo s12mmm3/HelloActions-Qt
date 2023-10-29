@@ -57,22 +57,22 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
-      # # Conan Install
-      # - name: Conan Install
-      #   id: conanInstall
-      #   shell: pwsh
-      #   run: |
-      #     pip install conan
-      #     conan -v
-      #     conan profile detect --force
-      # # Conan Run
-      # - name: Conan Run
-      #   id: conanRun
-      #   shell: pwsh
-      #   run: |
-      #     conan install .
-      #     ls build/generators/
-      #     build/generators/conanrun.bat
+      # Conan Install
+      - name: Conan Install
+        id: conanInstall
+        shell: pwsh
+        run: |
+          pip install conan
+          conan -v
+          conan profile detect --force
+      # Conan Run
+      - name: Conan Run
+        id: conanRun
+        shell: pwsh
+        run: |
+          conan install .
+          ls build/generators/
+          build/generators/conanrun.bat
       # CMake Build
       - name: CMake Build
         id: build
@@ -84,10 +84,6 @@ jobs:
           cmake --version
           cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} ../
           ls
-          echo winSdkDir=%WindowsSdkDir% >> %GITHUB_ENV%
-          echo winSdkVer=%WindowsSdkVersion% >> %GITHUB_ENV%
-          echo vcToolsInstallDir=%VCToolsInstallDir% >> %GITHUB_ENV%
-          echo vcToolsRedistDir=%VCToolsRedistDir% >> %GITHUB_ENV%
       # CMake Install
       - name: CMake Install
         env:
