@@ -74,7 +74,6 @@ jobs:
         id: build
         shell: cmd
         run: |
-          tree ${{ github.workspace }}/../Qt/tools
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.msvc_arch }}
           mkdir build
           cd build
@@ -104,8 +103,6 @@ jobs:
         run: |
           cd ${{ github.workspace }}/build
           ls
-          Copy-Item -Path C:/Program Files/OpenSSL/bin/*" -Destination output/bin -Recurse -Force
-          Copy-Item -Path "${{ github.workspace }}/../Qt/tools/OpenSSLv3/Win_x64/bin/*" -Destination output/bin -Recurse -Force
           & ${{ github.workspace }}/scripts/windows-publish.ps1 ${env:archiveName}
           # 记录packageName给后续step
           $name = ${env:archiveName}
