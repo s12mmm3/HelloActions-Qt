@@ -97,8 +97,7 @@ jobs:
       - name: Package
         id: package      
         env:
-          archiveName: ${{ github.repository_id }}-${{ github.ref_name }}-${{ matrix.qt_ver }}-${{ matrix.qt_arch }}
-          msvcArch: ${{ matrix.msvc_arch }}          
+          archiveName: QCloudMusicApi-${{ github.ref_name }}-${{ matrix.qt_ver }}-${{ matrix.qt_arch }}
         shell: pwsh
         run: |
           cd ${{ github.workspace }}/build
@@ -110,7 +109,7 @@ jobs:
           windeployqt --qmldir . --no-translations --compiler-runtime output\bin\Test.exe
           windeployqt --qmldir . --no-translations --compiler-runtime output\bin\ApiServer.exe
           # 打包zip
-          Compress-Archive -Path output $archiveName'.zip'
+          Compress-Archive -Path output\* $archiveName'.zip'
           Tree output /F
 
           # 记录packageName给后续step
