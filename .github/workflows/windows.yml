@@ -100,7 +100,7 @@ jobs:
         run: |
           cd ${{ github.workspace }}/build
           ls
-          & ${{ github.workspace }}/scripts/windows-publish.ps1 ${env:archiveName} ${env:targetName}
+          & ${{ github.workspace }}/scripts/windows-publish.ps1 ${env:archiveName}
           # 记录packageName给后续step
           $name = ${env:archiveName}
           echo "::set-output name=packageName::$name"
