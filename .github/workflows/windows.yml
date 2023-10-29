@@ -32,21 +32,21 @@ jobs:
         with:
           path: ../Qt/${{matrix.qt_ver}}/${{matrix.qt_arch_install}}
           key: ${{ runner.os }}-Qt/${{matrix.qt_ver}}/${{matrix.qt_arch}}
-      # - name: setupQt
-      #   if: steps.WindowsCacheQt.outputs.cache-hit == 'true'
-      #   shell: pwsh
-      #   env:
-      #     QtPath: ${{github.workspace}}/../Qt/${{matrix.qt_ver}}/${{matrix.qt_arch_install}}
-      #   run: |
-      #     $qt_Path=${env:QtPath}
-      #     $env:QT_DIR=$qt_Path
-      #     $Env:PATH+=";${env:QtPath}/bin"
-      #     (type env:path) -split ';'
-      #     qmake -v
-      #     Get-ChildItem Env:
+      - name: setupQt
+        if: steps.WindowsCacheQt.outputs.cache-hit == 'true'
+        shell: pwsh
+        env:
+          QtPath: ${{github.workspace}}/../Qt/${{matrix.qt_ver}}/${{matrix.qt_arch_install}}
+        run: |
+          $qt_Path=${env:QtPath}
+          $env:QT_DIR=$qt_Path
+          $Env:PATH+=";${env:QtPath}/bin"
+          (type env:path) -split ';'
+          qmake -v
+          Get-ChildItem Env:
       # 安装Qt
       - name: Install Qt
-        if: 'true'
+        if: steps.WindowsCacheQt.outputs.cache-hit != 'true'
         # 使用外部action。这个action专门用来安装Qt
         uses: jurplel/install-qt-action@v3
         with:
@@ -55,7 +55,7 @@ jobs:
           # Target platform for build
           # target: ${{ matrix.qt_target }}
           arch: ${{ matrix.qt_arch }}
-          cached: steps.WindowsCacheQt.outputs.cache-hit == 'true'
+          cached: 'false'
           aqtversion: '==2.0.5'
       # 拉取代码
       - uses: actions/checkout@v2
@@ -80,7 +80,7 @@ jobs:
       # CMake Build
       - name: CMake Build
         id: build
-        shell: cmd
+        shell: pwsh
         run: |
           (type env:path) -split ';'
           Get-ChildItem Env:
