@@ -27,6 +27,7 @@ function Main() {
     DeployQt -targetPath output\bin\CApi.dll
     # 打包zip
     Compress-Archive -Path output $archiveName'.zip'
+    Tree output /F
 }
 
 Write-Host "PSScriptRoot" $PSScriptRoot
