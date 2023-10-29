@@ -97,7 +97,7 @@ jobs:
       - name: Package
         id: package      
         env:
-          archiveName: QCloudMusicApi-${{ github.ref_name }}-${{ matrix.qt_ver }}-${{ matrix.qt_arch }}
+          archiveName: 'QCloudMusicApi-${{ github.ref_name }}-${{ matrix.qt_ver }}-${{ matrix.qt_arch }}'
         shell: pwsh
         run: |
           cd ${{ github.workspace }}/build
