@@ -22,11 +22,13 @@ jobs:
             qt_arch: win64_msvc2019_64
             msvc_arch: x64
             qt_arch_install: msvc2019_64
+            tools: 'opensslv3'
           # 6.6.0
           - qt_ver: 6.6.0
             qt_arch: win64_msvc2019_64
             msvc_arch: x64
             qt_arch_install: msvc2019_64
+            tools: 'opensslv3'
             modules: 'qthttpserver qtwebsockets'
     env:
       targetName: Test.exe
@@ -46,6 +48,7 @@ jobs:
           cache: 'true'
           aqtversion: '==2.0.5'
           modules: ${{ matrix.modules }}
+          tools: ${{ matrix.tools }}
       # 拉取代码
       - uses: actions/checkout@v2
         with:
@@ -71,6 +74,7 @@ jobs:
         id: build
         shell: cmd
         run: |
+          tree ${{ github.workspace }}/../Qt/tools
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.msvc_arch }}
           mkdir build
           cd build
@@ -112,7 +116,7 @@ jobs:
           name: ${{ steps.package.outputs.packageName }}
           path: ${{ github.workspace }}/build/output
       # tag 上传Release
-      - name: uploadRelease
+      - name: Upload Release
         if: startsWith(github.event.ref, 'refs/tags/')
         uses: svenstaro/upload-release-action@v2
         with:

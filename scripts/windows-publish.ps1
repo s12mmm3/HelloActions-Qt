@@ -19,7 +19,7 @@ function DeployQt {
     }
 }
 function Main() {
-    Tree output\ /F
+    Tree output /F
     # 拷贝依赖
     DeployQt -targetPath output\bin\Test.exe
     DeployQt -targetPath output\bin\ApiServer.exe
