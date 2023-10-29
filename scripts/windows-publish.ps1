@@ -21,16 +21,15 @@ function DeployQt {
 function Main() {
     Tree output\ /F
     # 拷贝依赖
-    DeployQt -targetName output\bin\Test.exe
-    DeployQt -targetName output\bin\ApiServer.exe
-    DeployQt -targetName output\bin\QCloudMusicApi.dll
-    DeployQt -targetName output\bin\CApi.dll
+    DeployQt -targetPath output\bin\Test.exe
+    DeployQt -targetPath output\bin\ApiServer.exe
+    DeployQt -targetPath output\bin\QCloudMusicApi.dll
+    DeployQt -targetPath output\bin\CApi.dll
     # 打包zip
     Compress-Archive -Path output $archiveName'.zip'
 }
 
-Write-Host "$PSScriptRoot" $PSScriptRoot
-Write-Host "Get-Location" Get-Location
+Write-Host "PSScriptRoot" $PSScriptRoot
 
 Main
 

@@ -91,7 +91,7 @@ jobs:
           cmake --build . --target INSTALL --config release
           ls
       # 打包 
-      - name: package
+      - name: Package
         id: package      
         env:
           archiveName: ${{ matrix.qt_ver }}-${{ matrix.qt_target }}-${{ matrix.qt_arch }}
