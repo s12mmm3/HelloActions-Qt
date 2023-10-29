@@ -39,9 +39,8 @@ jobs:
           QtPath: ${{github.workspace}}/Qt/${{matrix.qt_ver}}/${{matrix.qt_arch_install}}
         run: |
           $qt_Path=${env:QtPath}
-          $env:QT_DIR=$qt_Path
-          $env:CMAKE_PREFIX_PATH:PATH=$qt_Path
           $Env:PATH+=";${env:QtPath}/bin"
+          (type env:path) -split ';'
           qmake -v
           Get-ChildItem Env:
       # 安装Qt
