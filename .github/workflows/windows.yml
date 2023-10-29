@@ -109,7 +109,7 @@ jobs:
           windeployqt --qmldir . --no-translations --compiler-runtime output\bin\Test.exe
           windeployqt --qmldir . --no-translations --compiler-runtime output\bin\ApiServer.exe
           # 打包zip
-          Compress-Archive -Path output\* $archiveName'.zip'
+          Compress-Archive -Path output\* ${env:archiveName}'.zip'
           Tree output /F
 
           # 记录packageName给后续step
