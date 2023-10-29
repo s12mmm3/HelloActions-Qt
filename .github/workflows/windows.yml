@@ -82,6 +82,8 @@ jobs:
         id: build
         shell: cmd
         run: |
+          (type env:path) -split ';'
+          Get-ChildItem Env:
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.msvc_arch }}
           mkdir build
           cd build
