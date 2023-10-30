@@ -1,0 +1,83 @@
+name: Build and package Qt project with OpenSSL on Windows
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        qt-version: [5.15.2, 6.6.0]
+        qt-arch: [win32_msvc2019, win64_msvc2019_64]
+        exclude:
+          - qt-version: 6.6.0
+            qt-arch: win32_msvc2019
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: ${{ matrix.qt-version }}
+          arch: ${{ matrix.qt-arch }}
+          dir: ${{ github.workspace }}/qt
+
+      - name: Set Qt path
+        run: |
+          echo "QTDIR=${{ github.workspace }}\qt\${{ matrix.qt-version }}\${{ matrix.qt-arch }}" >> $GITHUB_ENV
+          echo "${{ github.workspace }}\qt\${{ matrix.qt-version }}\${{ matrix.qt-arch }}\bin" >> $GITHUB_PATH
+
+      - name: Install Perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: 5.32
+
+      - name: Install NASM
+        run: |
+          choco install nasm
+          echo "C:\Program Files\NASM" >> $GITHUB_PATH
+
+      - name: Download OpenSSL source code
+        run: |
+          curl -O https://www.openssl.org/source/openssl-1.1.1l.tar.gz
+          tar xzf openssl-1.1.1l.tar.gz
+
+      - name: Build OpenSSL
+        working-directory: openssl-1.1.1l
+        run: |
+          if ("${{ matrix.qt-arch }}" -eq "win32_msvc2019") {
+            $env:OPENSSL_ARCH = "VC-WIN32"
+            $env:CMAKE_GENERATOR = "Visual Studio 16 2019"
+            $env:CMAKE_ARCH = "Win32"
+          } else {
+            $env:OPENSSL_ARCH = "VC-WIN64A"
+            $env:CMAKE_GENERATOR = "Visual Studio 16 2019"
+            $env:CMAKE_ARCH = "x64"
+          }
+          perl Configure $env:OPENSSL_ARCH --prefix=${{ github.workspace }}\openssl no-shared no-tests
+          nmake
+          nmake install
+
+      - name: Set OpenSSL path
+        run: |
+          echo "OPENSSL_DIR=${{ github.workspace }}\openssl" >> $GITHUB_ENV
+
+      - name: Configure CMake project
+        run: |
+          cmake -B build -G "${{ env.CMAKE_GENERATOR }}" -A "${{ env.CMAKE_ARCH }}" -DOPENSSL_ROOT_DIR="${{ env.OPENSSL_DIR }}" -DOPENSSL_USE_STATIC_LIBS=TRUE
+
+      - name: Build CMake project
+        run: |
+          cmake --build build --config Release
+
+      - name: Package CMake project
+        run: |
+          cmake --install build --config Release --prefix package
+
+      - name: Upload package as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: package-${{ matrix.qt-version }}-${{ matrix.qt-arch }}
+          path: package
+
