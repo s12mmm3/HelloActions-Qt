@@ -17,45 +17,33 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: ${{ matrix.qt-version }}
           arch: ${{ matrix.qt-arch }}
-          dir: ${{ github.workspace }}/qt
-
-      - name: Set Qt path
-        run: |
-          echo "QTDIR=${{ github.workspace }}\qt\${{ matrix.qt-version }}\${{ matrix.qt-arch }}" >> $GITHUB_ENV
-          echo "${{ github.workspace }}\qt\${{ matrix.qt-version }}\${{ matrix.qt-arch }}\bin" >> $GITHUB_PATH
+          cache: 'true'
 
       - name: Install Perl
         uses: shogo82148/actions-setup-perl@v1
         with:
           perl-version: 5.32
 
-      - name: Install NASM
-        run: |
-          choco install nasm
-          echo "C:\Program Files\NASM" >> $GITHUB_PATH
-
       - name: Download OpenSSL source code
         run: |
-          curl -O https://www.openssl.org/source/openssl-1.1.1l.tar.gz
-          tar xzf openssl-1.1.1l.tar.gz
+          curl -O https://www.openssl.org/source/openssl-3.1.2.tar.gz
+          tar xzf openssl-3.1.2.tar.gz
 
       - name: Build OpenSSL
-        working-directory: openssl-1.1.1l
+        working-directory: openssl-3.1.2
         run: |
           if ("${{ matrix.qt-arch }}" -eq "win32_msvc2019") {
-            $env:OPENSSL_ARCH = "VC-WIN32"
             $env:CMAKE_GENERATOR = "Visual Studio 16 2019"
             $env:CMAKE_ARCH = "Win32"
           } else {
-            $env:OPENSSL_ARCH = "VC-WIN64A"
             $env:CMAKE_GENERATOR = "Visual Studio 16 2019"
             $env:CMAKE_ARCH = "x64"
           }
-          perl Configure $env:OPENSSL_ARCH --prefix=${{ github.workspace }}\openssl no-shared no-tests
+          perl Configure no-asm --prefix=${{ github.workspace }}\openssl no-shared no-tests
           nmake
           nmake install
 
