@@ -52,19 +52,54 @@ jobs:
 
       - name: Configure CMake project
         run: |
-          cmake -B build -DOPENSSL_ROOT_DIR="${{ env.OPENSSL_DIR }}" -DOPENSSL_USE_STATIC_LIBS=TRUE
+          mkdir build
+          cd build
+          cmake --version
+          cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} ../ -DOPENSSL_ROOT_DIR="${{ env.OPENSSL_DIR }}" -DOPENSSL_USE_STATIC_LIBS=TRUE
+          ls
 
       - name: Build CMake project
         run: |
-          cmake --build build --config Release
-
-      - name: Package CMake project
+          cd ${{ github.workspace }}/build
+          cmake --build . --target INSTALL --config release
+          ls
+      # 打包 
+      - name: Package
+        id: package      
+        env:
+          archiveName: 'QCloudMusicApi-${{ github.ref_name }}-${{ matrix.qt_ver }}-${{ matrix.qt_arch }}'
+        shell: pwsh
         run: |
-          cmake --install build --config Release --prefix package
+          cd ${{ github.workspace }}/build
+          ls
+          Tree output /F
 
-      - name: Upload package as artifact
-        uses: actions/upload-artifact@v2
+          # 拷贝依赖
+          windeployqt --qmldir . --no-translations --compiler-runtime output\bin\QCloudMusicApi.dll
+          windeployqt --qmldir . --no-translations --compiler-runtime output\bin\Test.exe
+          windeployqt --qmldir . --no-translations --compiler-runtime output\bin\ApiServer.exe
+          # 打包zip
+          Compress-Archive -Path output\* ${env:archiveName}'.zip'
+          Tree output /F
+
+          # 记录packageName给后续step
+          $name = ${env:archiveName}
+          echo "::set-output name=packageName::$name"
+          ls
+      # tag 查询github-Release
+      # 上传artifacts          
+      - uses: actions/upload-artifact@v2
         with:
-          name: package-${{ matrix.qt_ver }}-${{ matrix.qt_arch }}
-          path: package
+          name: ${{ steps.package.outputs.packageName }}
+          path: ${{ github.workspace }}/build/output
+      # tag 上传Release
+      - name: Upload Release
+        if: startsWith(github.event.ref, 'refs/tags/')
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ github.workspace }}/build/${{ steps.package.outputs.packageName }}.zip
+          asset_name: ${{ steps.package.outputs.packageName }}.zip
+          tag: ${{ github.ref }}
+          overwrite: true 
 
