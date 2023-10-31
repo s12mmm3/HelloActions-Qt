@@ -41,13 +41,7 @@ jobs:
         shell: cmd
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.msvc_arch }}
-          if ("${{ matrix.qt_arch }}" -eq "win32_msvc2019") {
-            $env:CMAKE_GENERATOR = "Visual Studio 16 2019"
-            $env:CMAKE_ARCH = "Win32"
-          } else {
-            $env:CMAKE_GENERATOR = "Visual Studio 16 2019"
-            $env:CMAKE_ARCH = "x64"
-          }
+          
           perl Configure no-asm --prefix=${{ github.workspace }}\openssl no-shared no-tests
           nmake
           nmake install
@@ -58,7 +52,7 @@ jobs:
 
       - name: Configure CMake project
         run: |
-          cmake -B build -G "${{ env.CMAKE_GENERATOR }}" -A "${{ env.CMAKE_ARCH }}" -DOPENSSL_ROOT_DIR="${{ env.OPENSSL_DIR }}" -DOPENSSL_USE_STATIC_LIBS=TRUE
+          cmake -B build -DOPENSSL_ROOT_DIR="${{ env.OPENSSL_DIR }}" -DOPENSSL_USE_STATIC_LIBS=TRUE
 
       - name: Build CMake project
         run: |
