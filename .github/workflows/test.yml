@@ -42,7 +42,7 @@ jobs:
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.msvc_arch }}
           
-          perl Configure no-asm --prefix=${{ github.workspace }}\openssl no-tests
+          perl Configure no-asm --prefix=${{ github.workspace }}\openssl no-tests shared
           nmake
           nmake install
 
