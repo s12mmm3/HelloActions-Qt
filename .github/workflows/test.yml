@@ -55,7 +55,7 @@ jobs:
           mkdir build
           cd build
           cmake --version
-          cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} ../ -DOPENSSL_ROOT_DIR="${{ env.OPENSSL_DIR }}" -DOPENSSL_USE_STATIC_LIBS=TRUE
+          cmake -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} ../ DOPENSSL_ROOT_DIR=${{ github.workspace }}\openssl -DOPENSSL_INCLUDE_DIR=${{ github.workspace }}\openssl\include -DOPENSSL_LIBRARIES=${{ github.workspace }}\openssl\lib -DOPENSSL_USE_STATIC_LIBS=TRUE
           ls
 
       - name: Build CMake project
