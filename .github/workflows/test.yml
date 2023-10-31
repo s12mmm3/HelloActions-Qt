@@ -46,6 +46,11 @@ jobs:
           nmake
           nmake install
 
+      - name: Remove OpenSSL path
+        shell: pwsh
+        run: |
+          $env:Path = $env:Path.Replace("C:\Program Files\OpenSSL", "")
+
       - name: Set OpenSSL path
         run: |
           echo "OPENSSL_DIR=${{ github.workspace }}\openssl" >> $GITHUB_ENV
