@@ -7,11 +7,14 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        qt-version: [5.15.2, 6.6.0]
-        qt-arch: [win32_msvc2019, win64_msvc2019_64]
-        exclude:
-          - qt-version: 6.6.0
-            qt-arch: win32_msvc2019
+        include:
+          # 5.15.2
+          - qt_ver: 5.15.2
+            qt_arch: win32_msvc2019
+            msvc_arch: x86
+          - qt_ver: 5.15.2
+            qt_arch: win64_msvc2019_64
+            msvc_arch: x64
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
@@ -19,8 +22,8 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: ${{ matrix.qt-version }}
-          arch: ${{ matrix.qt-arch }}
+          version: ${{ matrix.qt_ver }}
+          arch: ${{ matrix.qt_arch }}
           cache: 'true'
 
       - name: Install Perl
@@ -36,7 +39,8 @@ jobs:
       - name: Build OpenSSL
         working-directory: openssl-3.1.2
         run: |
-          if ("${{ matrix.qt-arch }}" -eq "win32_msvc2019") {
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.msvc_arch }}
+          if ("${{ matrix.qt_arch }}" -eq "win32_msvc2019") {
             $env:CMAKE_GENERATOR = "Visual Studio 16 2019"
             $env:CMAKE_ARCH = "Win32"
           } else {
@@ -66,6 +70,6 @@ jobs:
       - name: Upload package as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: package-${{ matrix.qt-version }}-${{ matrix.qt-arch }}
+          name: package-${{ matrix.qt_ver }}-${{ matrix.qt_arch }}
           path: package
 
