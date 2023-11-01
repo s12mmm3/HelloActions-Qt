@@ -57,7 +57,9 @@ jobs:
           echo "OPENSSL_DIR=${{ github.workspace }}\openssl" >> $GITHUB_ENV
 
       - name: Configure CMake project
+        shell: cmd
         run: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{ matrix.msvc_arch }}
           mkdir build
           cd build
           cmake --version
