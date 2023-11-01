@@ -33,12 +33,26 @@ jobs:
         with:
           perl-version: 5.32
 
+      - name: Restore OpenSSL cache
+        uses: actions/cache@v2
+        id: cache
+        with:
+          path: |
+            openssl-3.1.2
+            ${{ github.workspace }}/openssl
+          key: openssl-${{ matrix.msvc_arch }}-${{ hashFiles('openssl-3.1.2.tar.gz') }}
+          restore-keys: |
+            openssl-${{ matrix.msvc_arch }}-
+            openssl-
+
       - name: Download OpenSSL source code
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           curl -O https://www.openssl.org/source/openssl-3.1.2.tar.gz
           tar xzf openssl-3.1.2.tar.gz
 
       - name: Build OpenSSL
+        if: steps.cache.outputs.cache-hit != 'true'
         working-directory: openssl-3.1.2
         shell: cmd
         run: |
@@ -47,6 +61,14 @@ jobs:
           perl Configure no-asm --prefix=${{ github.workspace }}\openssl no-tests shared
           nmake
           nmake install
+
+      - name: Save OpenSSL cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            openssl-3.1.2
+            ${{ github.workspace }}/openssl
+          key: openssl-${{ matrix.msvc_arch }}-${{ hashFiles('openssl-3.1.2.tar.gz') }}
 
       - name: Remove OpenSSL path
         shell: pwsh
@@ -84,10 +106,10 @@ jobs:
           ls
           Tree output /F
 
-          # 拷贝依赖
-          windeployqt --qmldir . --no-translations --compiler-runtime output\bin\QCloudMusicApi.dll
-          windeployqt --qmldir . --no-translations --compiler-runtime output\bin\Test.exe
-          windeployqt --qmldir . --no-translations --compiler-runtime output\bin\ApiServer.exe
+          # 拷贝依赖 
+          windeployqt --qmldir . --no-translations --compiler-runtime output\bin\QCloudMusicApi.dll 
+          windeployqt --qmldir . --no-translations --compiler-runtime output\bin\Test.exe 
+          windeployqt --qmldir . --no-translations --compiler-runtime output\bin\ApiServer.exe 
           # 打包zip
           Compress-Archive -Path output\* ${env:archiveName}'.zip'
           Tree output /F
@@ -111,5 +133,5 @@ jobs:
           file: ${{ github.workspace }}/build/${{ steps.package.outputs.packageName }}.zip
           asset_name: ${{ steps.package.outputs.packageName }}.zip
           tag: ${{ github.ref }}
-          overwrite: true 
+          overwrite: true
 
