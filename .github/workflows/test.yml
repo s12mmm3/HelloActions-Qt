@@ -24,6 +24,7 @@ jobs:
           # 6.6.0
           - qt_ver: 6.6.0
             qt_arch: win64_msvc2019_64
+            modules: 'qthttpserver qtwebsockets'
             msvc_arch: x64
             cmake_arch: x64
             openssl_ver: 3.1.2
@@ -38,6 +39,7 @@ jobs:
           version: ${{ matrix.qt_ver }}
           arch: ${{ matrix.qt_arch }}
           cache: 'true'
+          modules: ${{ matrix.modules }}
 
       - name: Restore OpenSSL cache
         uses: actions/cache@v2
