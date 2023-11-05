@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>album.qml</file>
+        <file>artist_album.qml</file>
+    </qresource>
+</RCC>

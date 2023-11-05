@@ -15,7 +15,16 @@ add_library(CApi SHARED
   capi.cpp
   capi.h
 )
+add_executable(CApiTest
+    main.cpp
+)
+target_link_libraries(CApiTest PRIVATE Qt${QT_VERSION_MAJOR}::Core CApi)
 
 target_link_libraries(CApi PRIVATE Qt${QT_VERSION_MAJOR}::Core QCloudMusicApi)
 
 target_compile_definitions(CApi PRIVATE CAPI_LIBRARY)
+
+set(PUBLIC_HEADERS
+    capi.h
+)
+install(FILES ${PUBLIC_HEADERS} DESTINATION ${CMAKE_HEADER_OUTPUT_DIRECTORY})
