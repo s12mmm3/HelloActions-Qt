@@ -38,3 +38,8 @@ CAPI_EXPORT char* getFunName(int i) {
 CAPI_EXPORT int getFunCount() {
     return NeteaseCloudMusicApi().metaObject()->methodCount() - QObject().metaObject()->methodCount();
 }
+
+void t() {
+    NeteaseCloudMusicApi api;
+    api.toplist(QVariantMap());
+}
