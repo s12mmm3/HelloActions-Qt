@@ -171,5 +171,29 @@
     },
     "digitalAlbum_sales": {
         "ids": ["86433402"]
+    },
+    "digitalAlbum_ordering": {
+        "id": "86286082",
+        "payment": "3",
+        "quantity": "1"
+    },
+    "dj_detail": {
+        "rid": "336355127"
+    },
+    "dj_program_detail": {
+        "id": "1367665101"
+    },
+    "dj_program": {
+        "rid": "336355127"
+    },
+    "dj_radio_hot": {
+        "cateId": "2001"
+    },
+    "dj_recommend_type": {
+        "type": "2001"
+    },
+    "dj_sub": {
+        "rid": "336355127",
+        "t": 1
     }
 }

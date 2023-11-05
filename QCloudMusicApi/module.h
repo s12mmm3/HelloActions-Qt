@@ -16,8 +16,6 @@ class QCLOUDMUSICAPI_EXPORT NeteaseCloudMusicApi: public QObject {
     Q_OBJECT
 
 public:
-    NeteaseCloudMusicApi();
-    ~NeteaseCloudMusicApi();
 
     // 初始化名字
     Q_INVOKABLE const QVariantMap activate_init_profile(QVariantMap query);
@@ -147,11 +145,101 @@ public:
     // 获取达人用户信息
     Q_INVOKABLE const QVariantMap creator_authinfo_get(QVariantMap query);
 
+    // 签到
+
+    /*
+    0为安卓端签到 3点经验, 1为网页签到,2点经验
+    签到成功 {'android': {'point': 3, 'code': 200}, 'web': {'point': 2, 'code': 200}}
+    重复签到 {'android': {'code': -2, 'msg': '重复签到'}, 'web': {'code': -2, 'msg': '重复签到'}}
+    未登录 {'android': {'code': 301}, 'web': {'code': 301}}
+    */
+    Q_INVOKABLE const QVariantMap daily_signin(QVariantMap query);
+
     // 数字专辑详情
     Q_INVOKABLE const QVariantMap digitalAlbum_detail(QVariantMap query);
 
+    // 购买数字专辑
+    Q_INVOKABLE const QVariantMap digitalAlbum_ordering(QVariantMap query);
+
+    // 我的数字专辑
+    Q_INVOKABLE const QVariantMap digitalAlbum_purchased(QVariantMap query);
+
     // 数字专辑销量
     Q_INVOKABLE const QVariantMap digitalAlbum_sales(QVariantMap query);
+
+    // 电台banner
+    Q_INVOKABLE const QVariantMap dj_banner(QVariantMap query);
+
+    // 电台非热门类型
+    Q_INVOKABLE const QVariantMap dj_category_excludehot(QVariantMap query);
+
+    // 电台推荐类型
+    Q_INVOKABLE const QVariantMap dj_category_recommend(QVariantMap query);
+
+    // 电台分类列表
+    Q_INVOKABLE const QVariantMap dj_catelist(QVariantMap query);
+
+    // 电台详情
+    Q_INVOKABLE const QVariantMap dj_detail(QVariantMap query);
+
+    // 热门电台
+    Q_INVOKABLE const QVariantMap dj_hot(QVariantMap query);
+
+    // 付费电台
+    Q_INVOKABLE const QVariantMap dj_paygift(QVariantMap query);
+
+    // 电台个性推荐
+    Q_INVOKABLE const QVariantMap dj_personalize_recommend(QVariantMap query);
+
+    // 电台节目详情
+    Q_INVOKABLE const QVariantMap dj_program_detail(QVariantMap query);
+
+    // 电台24小时节目榜
+    Q_INVOKABLE const QVariantMap dj_program_toplist_hours(QVariantMap query);
+
+    // 电台节目榜
+    Q_INVOKABLE const QVariantMap dj_program_toplist(QVariantMap query);
+
+    // 电台节目列表
+    Q_INVOKABLE const QVariantMap dj_program(QVariantMap query);
+
+    // 类别热门电台
+    Q_INVOKABLE const QVariantMap dj_radio_hot(QVariantMap query);
+
+    // 精选电台分类
+
+    /*
+    有声书 10001
+    知识技能 453050
+    商业财经 453051
+    人文历史 11
+    外语世界 13
+    亲子宝贝 14
+    创作|翻唱 2001
+    音乐故事 2
+    3D|电子 10002
+    相声曲艺 8
+    情感调频 3
+    美文读物 6
+    脱口秀 5
+    广播剧 7
+    二次元 3001
+    明星做主播 1
+    娱乐|影视 4
+    科技科学 453052
+    校园|教育 4001
+    旅途|城市 12
+    */
+    Q_INVOKABLE const QVariantMap dj_recommend_type(QVariantMap query);
+
+    // 精选电台
+    Q_INVOKABLE const QVariantMap dj_recommend(QVariantMap query);
+
+    // 订阅与取消电台
+    Q_INVOKABLE const QVariantMap dj_sub(QVariantMap query);
+
+    // 订阅电台列表
+    Q_INVOKABLE const QVariantMap dj_sublist(QVariantMap query);
 
     // 粉丝年龄比例
     Q_INVOKABLE const QVariantMap fanscenter_basicinfo_age_get(QVariantMap query);
