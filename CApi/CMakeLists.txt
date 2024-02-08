@@ -15,10 +15,6 @@ add_library(CApi SHARED
   capi.cpp
   capi.h
 )
-add_executable(CApiTest
-    main.cpp
-)
-target_link_libraries(CApiTest PRIVATE Qt${QT_VERSION_MAJOR}::Core CApi)
 
 target_link_libraries(CApi PRIVATE Qt${QT_VERSION_MAJOR}::Core QCloudMusicApi)
 

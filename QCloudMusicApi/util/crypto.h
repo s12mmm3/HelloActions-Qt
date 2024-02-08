@@ -1,7 +1,6 @@
-#ifndef CRYPTO_H
+﻿#ifndef CRYPTO_H
 #define CRYPTO_H
 
-#include <iostream>
 #include <QByteArray>
 #include <QObject>
 #include <QVariantMap>
@@ -19,14 +18,16 @@ extern "C" {
 
 namespace Crypto {
 
-const static QByteArray iv = QByteArray::fromStdString("0102030405060708");
-const static QByteArray presetKey = QByteArray::fromStdString("0CoJUm6Qyw8W8jud");
-const static QByteArray linuxapiKey = QByteArray::fromStdString("rFgB&h#%2?^eDg:Q");
-const static QString base62 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-const static QString publicKey = "-----BEGIN PUBLIC KEY-----\n"
-                          "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7clFSs6sXqHauqKWqdtLkF2KexO40H1YTX8z2lSgBBOAxLsvaklV8k4cBFK9snQXE9/DDaFt6Rr7iVZMldczhC0JNgTz+SHXT6CBHuX3e9SdB1Ua44oncaTWz7OBGLbCiK45wIDAQAB"
-                          "\n-----END PUBLIC KEY-----";
-const static QString eapiKey = "e82ckenh8dichen8";
+const static auto iv = QStringLiteral("0102030405060708");
+const static auto presetKey = QStringLiteral("0CoJUm6Qyw8W8jud");
+const static auto linuxapiKey = QStringLiteral("rFgB&h#%2?^eDg:Q");
+const static auto base62 = QStringLiteral("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+const static auto publicKey = QStringLiteral(
+    "-----BEGIN PUBLIC KEY-----\n"
+    "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDgtQn2JZ34ZC28NWYpAUd98iZ37BUrX/aKzmFbt7clFSs6sXqHauqKWqdtLkF2KexO40H1YTX8z2lSgBBOAxLsvaklV8k4cBFK9snQXE9/DDaFt6Rr7iVZMldczhC0JNgTz+SHXT6CBHuX3e9SdB1Ua44oncaTWz7OBGLbCiK45wIDAQAB"
+    "\n-----END PUBLIC KEY-----"
+    );
+const static auto eapiKey = QStringLiteral("e82ckenh8dichen8");
 
 /**
  * @brief 使用AES算法加密数据的函数
@@ -46,11 +47,9 @@ static QByteArray aesEncrypt(const QByteArray &plainData, const EVP_CIPHER *mode
     }
 
     // 将QString类型的输入参数转换为char*类型
-    QByteArray keyBytes = key.toUtf8();
-    QByteArray ivBytes = iv.toUtf8();
     const char *plainDataChar = plainData.constData();
-    const char *keyChar = keyBytes.constData();
-    const char *ivChar = ivBytes.constData();
+    const char *keyChar = key.toUtf8();
+    const char *ivChar = iv.toUtf8();
 
     // 计算加密后的数据长度，至少要比明文数据长度大一个块大小
     int outBufLen = plainData.size() + EVP_CIPHER_block_size(mode());
@@ -98,11 +97,9 @@ static QByteArray aesDecrypt(const QByteArray &cipherData, const EVP_CIPHER *mod
     }
 
     // 将QString类型的输入参数转换为char*类型
-    QByteArray keyBytes = key.toUtf8();
-    QByteArray ivBytes = iv.toUtf8();
     const char *cipherDataChar = cipherData.constData();
-    const char *keyChar = keyBytes.constData();
-    const char *ivChar = ivBytes.constData();
+    const char *keyChar = key.toUtf8();
+    const char *ivChar = iv.toUtf8();
 
     // 计算解密后的数据长度，至少要和密文数据长度一样大
     int outBufLen = cipherData.size();
@@ -185,7 +182,7 @@ static QByteArray rsaEncrypt (QString plainText, const QString& strPubKey)
     return encryptData;
 }
 
-static const QVariantMap weapi(QJsonDocument object) {
+QVariantMap weapi(QJsonDocument object) {
     const QString text = object.toJson(QJsonDocument::Compact);
 
     // 创建一个长度为16的字节数组
@@ -208,29 +205,37 @@ static const QVariantMap weapi(QJsonDocument object) {
     auto encSecKey = rsaEncrypt(secretKey, publicKey).toHex();
 
     return {
-        { "params", params },
-        { "encSecKey", encSecKey }
+        { QStringLiteral("params"), params },
+        { QStringLiteral("encSecKey"), encSecKey }
     };
 }
 
-static const QVariantMap linuxapi(QJsonDocument object) {
+QVariantMap linuxapi(QJsonDocument object) {
     const QString text = object.toJson(QJsonDocument::Indented);
     return {
-        { "eparams", aesEncrypt(text.toUtf8(), EVP_aes_128_ecb, linuxapiKey, "").toHex().toUpper() }
+        { QStringLiteral("eparams"), aesEncrypt(text.toUtf8(), EVP_aes_128_ecb, linuxapiKey, QStringLiteral("")).toHex().toUpper() }
     };
 }
 
-static const QVariantMap eapi(QString url, QJsonDocument object) {
+QVariantMap eapi(QString url, QJsonDocument object) {
     const QString text = object.toJson(QJsonDocument::Indented);
-    const QString message = "nobody" + url + "use" + text + "md5forencrypt";
+    const QString message = QStringLiteral("nobody")
+                            + url
+                            + QStringLiteral("use")
+                            + text
+                            + QStringLiteral("md5forencrypt");
     const QByteArray digest = QCryptographicHash::hash(message.toUtf8(), QCryptographicHash::Md5).toHex();
-    const QString data = url + "-36cd479b6b5-" + text + "-36cd479b6b5-" + digest;
+    const QString data = url
+                         + QStringLiteral("-36cd479b6b5-")
+                         + text
+                         + QStringLiteral("-36cd479b6b5-")
+                         + digest;
     return {
-        { "params", aesEncrypt(data.toUtf8(), EVP_aes_128_ecb, eapiKey, "").toHex().toUpper() }
+        { "params", aesEncrypt(data.toUtf8(), EVP_aes_128_ecb, eapiKey, QStringLiteral("")).toHex().toUpper() }
     };
 }
 
-static const QByteArray decrypt(QByteArray cipherBuffer) {
+QByteArray decrypt(QByteArray cipherBuffer) {
     return aesDecrypt(cipherBuffer, EVP_aes_128_ecb, eapiKey, "");
 }
 }
