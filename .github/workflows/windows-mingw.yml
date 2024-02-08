@@ -73,7 +73,8 @@ jobs:
         shell: cmd
         run: |
           cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_INSTALL_PREFIX=${{ github.workspace }} -B ${{ env.BUILD_PATH }}
-          ls
+          
+          Tree /F
       # CMake Install
       - name: CMake Install
         env:
