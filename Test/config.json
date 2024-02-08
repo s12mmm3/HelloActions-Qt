@@ -195,5 +195,86 @@
     "dj_sub": {
         "rid": "336355127",
         "t": 1
+    },
+    "dj_subscriber": {
+        "id": "335425050"
+    },
+    "fm_trash": {
+        "id": "347230"
+    },
+    "follow": {
+        "id": "79248480",
+        "t": 1
+    },
+    "batch": {
+        "/api/v2/banner/get": "{\"clientType\":\"pc\"}"
+    },
+    "check_music": {
+        "id": "2058263032"
+    },
+    "comment_floor": {
+        "parentCommentId": "1438569889",
+        "id": "29764564",
+        "type": 0
+    },
+    "comment_hot": {
+        "id": "2058263032",
+        "type": "0"
+    },
+    "comment_hug_list": {
+        "uid": "285516405",
+        "cid": "1167145843",
+        "sid": "863481066",
+        "pageSize": 2,
+        "page": 1
+    },
+    "comment_like": {
+        "id": "29178366",
+        "cid": "12840183",
+        "t": 1,
+        "type": "0"
+    },
+    "comment_new": {
+        "id": "2058263032",
+        "sortType": 3,
+        "type": "0"
+    },
+    "comment": {
+        "id": "5436712",
+        "t": 1,
+        "type": "1",
+        "content": "test"
+    },
+    "get_userids": {
+        "nicknames": "binaryify"
+    },
+    "hug_comment": {
+        "uid": "285516405",
+        "cid": "1167145843",
+        "sid": "863481066"
+    },
+    "like": {
+        "id": "2058263032"
+    },
+    "likelist": {
+        "uid": "79248480"
+    },
+    "user_audio": {
+        "uid": "79248480"
+    },
+    "user_dj": {
+        "uid": "79248480"
+    },
+    "user_event": {
+        "uid": "79248480"
+    },
+    "user_followeds": {
+        "uid": "79248480"
+    },
+    "user_follows": {
+        "uid": "79248480"
+    },
+    "user_record": {
+        "uid": "79248480"
     }
 }

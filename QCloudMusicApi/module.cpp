@@ -1,7 +1,4 @@
-﻿#include "module.h"
-
-#include <iostream>
-#include <QJsonDocument>
+﻿#include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QNetworkRequest>
@@ -9,87 +6,94 @@
 #include <QNetworkInterface>
 #include <QVariantMap>
 #include <QRegularExpression>
+#include <QRandomGenerator>
 
-#include "request.hpp"
+#include "util/config.h"
+#include "util/request.h"
+#include "module.h"
+
+//定义一些重复参数
+#define _PARAM \
+{ "cookie", query["cookie"] }, \
+{ "proxy", query["proxy"] }, \
+{ "realIP", query["realIP"] } \
+
+using Api = NeteaseCloudMusicApi;
+const static auto &request = Request::createRequest;
+const static auto &POST = QNetworkAccessManager::PostOperation;
+const static auto &GET = QNetworkAccessManager::GetOperation;
+const static auto &resourceTypeMap = Config::resourceTypeMap;
 
 // 初始化名字
-const QVariantMap NeteaseCloudMusicApi::activate_init_profile(QVariantMap query) {
+QVariantMap Api::activate_init_profile(QVariantMap query) {
     QVariantMap data {
         { "nickname", query["nickname"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/eapi/activate/initProfile",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/activate/initProfile" }
         }
         );
 }
 
 // 专辑动态信息
-const QVariantMap NeteaseCloudMusicApi::album_detail_dynamic(QVariantMap query) {
+QVariantMap Api::album_detail_dynamic(QVariantMap query) {
     const QVariantMap data {
         { "id", query["id"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/album/detail/dynamic",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 数字专辑详情
-const QVariantMap NeteaseCloudMusicApi::album_detail(QVariantMap query) {
+QVariantMap Api::album_detail(QVariantMap query) {
     const QVariantMap data {
         { "id", query["id"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/vipmall/albumproduct/detail",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 数字专辑-语种风格馆
-const QVariantMap NeteaseCloudMusicApi::album_list_style(QVariantMap query) {
+QVariantMap Api::album_list_style(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 10) },
         { "offset", query.value("offset", 0) },
         { "total", true },
         { "area", query.value("area", "Z_H") }//Z_H:华语,E_A:欧美,KR:韩国,JP:日本
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/vipmall/appalbum/album/style",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 数字专辑-新碟上架
-const QVariantMap NeteaseCloudMusicApi::album_list(QVariantMap query) {
+QVariantMap Api::album_list(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 30) },
         { "offset", query.value("offset", 0) },
@@ -97,219 +101,195 @@ const QVariantMap NeteaseCloudMusicApi::album_list(QVariantMap query) {
         { "area", query.value("area", "ALL") },//ALL:全部,ZH:华语,EA:欧美,KR:韩国,JP:日本
         { "type", query["type"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/vipmall/albumproduct/list",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 全部新碟
-const QVariantMap NeteaseCloudMusicApi::album_new(QVariantMap query) {
+QVariantMap Api::album_new(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 30) },
         { "offset", query.value("offset", 0) },
         { "total", true },
         { "area", query.value("area", "ALL") },//ALL:全部,ZH:华语,EA:欧美,KR:韩国,JP:日本
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/album/new",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 最新专辑
-const QVariantMap NeteaseCloudMusicApi::album_newest(QVariantMap query) {
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+QVariantMap Api::album_newest(QVariantMap query) {
+    return request(
+        POST,
         "https://music.163.com/api/discovery/newAlbum",
         {},
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 数字专辑&数字单曲-榜单
-const QVariantMap NeteaseCloudMusicApi::album_songsaleboard(QVariantMap query) {
+QVariantMap Api::album_songsaleboard(QVariantMap query) {
     QVariantMap data {
         { "albumType", query.value("albumType", 0) } //0为数字专辑,1为数字单曲
     };
     const QString type = query.value("type", "daily").toString(); // daily,week,year,total
     if(type == "year") data["year"] = query["year"];
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/feealbum/songsaleboard/" + type + "/type",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 收藏/取消收藏专辑
-const QVariantMap NeteaseCloudMusicApi::album_sub(QVariantMap query) {
+QVariantMap Api::album_sub(QVariantMap query) {
     query["t"] = query.value("t", 1) == 1 ? "sub" : "unsub";
     const QVariantMap data {
         { "id", query["id"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/album/" + query["t"].toString(),
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 已收藏专辑列表
-const QVariantMap NeteaseCloudMusicApi::album_sublist(QVariantMap query) {
+QVariantMap Api::album_sublist(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 25) },
         { "offset", query.value("offset", 0) },
         { "total", true }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/album/sublist",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 专辑内容
-const QVariantMap NeteaseCloudMusicApi::album(QVariantMap query) {
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+QVariantMap Api::album(QVariantMap query) {
+    return request(
+        POST,
         "https://music.163.com/weapi/v1/album/" + query["id"].toString(),
         {},
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 歌手专辑列表
-const QVariantMap NeteaseCloudMusicApi::artist_album(QVariantMap query) {
+QVariantMap Api::artist_album(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 30) },
         { "offset", query.value("offset", 0) },
         { "total", true }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/artist/albums/" + query["id"].toString(),
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 歌手介绍
-const QVariantMap NeteaseCloudMusicApi::artist_desc(QVariantMap query) {
+QVariantMap Api::artist_desc(QVariantMap query) {
     const QVariantMap data {
         { "id", query["id"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/artist/introduction",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 歌手详情
-const QVariantMap NeteaseCloudMusicApi::artist_detail(QVariantMap query) {
+QVariantMap Api::artist_detail(QVariantMap query) {
     const QVariantMap data {
         { "id", query["id"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/artist/head/info/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 歌手粉丝
-const QVariantMap NeteaseCloudMusicApi::artist_fans(QVariantMap query) {
+QVariantMap Api::artist_fans(QVariantMap query) {
     const QVariantMap data {
         { "id", query["id"] },
         { "limit", query.value("limit", 20) },
         { "offset", query.value("offset", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/artist/fans/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 歌手粉丝数量
-const QVariantMap NeteaseCloudMusicApi::artist_follow_count(QVariantMap query) {
+QVariantMap Api::artist_follow_count(QVariantMap query) {
     const QVariantMap data {
         { "id", query["id"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/artist/follow/count/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
@@ -332,7 +312,7 @@ const QVariantMap NeteaseCloudMusicApi::artist_follow_count(QVariantMap query) {
 
     initial 取值 a-z/A-Z
 */
-const QVariantMap NeteaseCloudMusicApi::artist_list(QVariantMap query) {
+QVariantMap Api::artist_list(QVariantMap query) {
     const QVariantMap data {
         { "initial", (quint16)((query.value("initial", "\0").toString()[0]).toUpper()).unicode() },
         { "offset", query.value("offset", 0) },
@@ -341,42 +321,38 @@ const QVariantMap NeteaseCloudMusicApi::artist_list(QVariantMap query) {
         { "type", query.value("type", "1") },
         { "area", query["area"] },
         };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/v1/artist/list",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 歌手相关MV
-const QVariantMap NeteaseCloudMusicApi::artist_mv(QVariantMap query) {
+QVariantMap Api::artist_mv(QVariantMap query) {
     const QVariantMap data {
         { "artistId", query["id"] },
         { "limit", query["limit"] },
         { "offset", query["offset"] },
         { "total", true }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/artist/mvs",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 关注歌手新 MV
-const QVariantMap NeteaseCloudMusicApi::artist_new_mv(QVariantMap query) {
+QVariantMap Api::artist_new_mv(QVariantMap query) {
     QVariantMap cookie = query["cookie"].toMap();
     cookie["os"] = "ios";
     cookie["appver"] = "8.10.90";
@@ -385,21 +361,19 @@ const QVariantMap NeteaseCloudMusicApi::artist_new_mv(QVariantMap query) {
         { "limit", query.value("limit", 20) },
         { "startTimestamp", query.value("before", QDateTime::currentDateTime().toMSecsSinceEpoch()) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/sub/artist/new/works/mv/list",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 关注歌手新歌
-const QVariantMap NeteaseCloudMusicApi::artist_new_song(QVariantMap query) {
+QVariantMap Api::artist_new_song(QVariantMap query) {
     QVariantMap cookie = query["cookie"].toMap();
     cookie["os"] = "ios";
     cookie["appver"] = "8.10.90";
@@ -408,21 +382,19 @@ const QVariantMap NeteaseCloudMusicApi::artist_new_song(QVariantMap query) {
         { "limit", query.value("limit", 20) },
         { "startTimestamp", query.value("before", QDateTime::currentDateTime().toMSecsSinceEpoch()) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/sub/artist/new/works/song/list",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 歌手全部歌曲
-const QVariantMap NeteaseCloudMusicApi::artist_songs(QVariantMap query) {
+QVariantMap Api::artist_songs(QVariantMap query) {
     QVariantMap cookie = query["cookie"].toMap();
     cookie["os"] = "pc";
     query["cookie"] = cookie;
@@ -434,21 +406,19 @@ const QVariantMap NeteaseCloudMusicApi::artist_songs(QVariantMap query) {
         { "offset", query.value("offset", 0) },
         { "limit", query.value("limit", 100) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/v1/artist/songs",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 收藏与取消收藏歌手
-const QVariantMap NeteaseCloudMusicApi::artist_sub(QVariantMap query) {
+QVariantMap Api::artist_sub(QVariantMap query) {
     query["t"] = query.value("t", 1) == 1 ? "sub" : "unsub";
     QStringList artistIds;
     artistIds.append(query["id"].toString());
@@ -456,98 +426,110 @@ const QVariantMap NeteaseCloudMusicApi::artist_sub(QVariantMap query) {
         { "artistId", query["id"] },
         { "artistIds", artistIds }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/artist/" + query["t"].toString(),
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 关注歌手列表
-const QVariantMap NeteaseCloudMusicApi::artist_sublist(QVariantMap query) {
+QVariantMap Api::artist_sublist(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 25) },
         { "offset", query.value("offset", 0) },
         { "total", true }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/artist/sublist",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 歌手热门 50 首歌曲
-const QVariantMap NeteaseCloudMusicApi::artist_top_song(QVariantMap query) {
+QVariantMap Api::artist_top_song(QVariantMap query) {
     const QVariantMap data {
         { "id", query["id"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/artist/top/song",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 歌手相关视频
-const QVariantMap NeteaseCloudMusicApi::artist_video(QVariantMap query) {
+QVariantMap Api::artist_video(QVariantMap query) {
     const QVariantMap data {
         { "artistId", query["id"] },
-        { "page", QJsonDocument::fromVariant(QVariantMap {
+        { "page", QJsonDocument(QJsonObject::fromVariantMap({
                                                 { "size", query.value("size", 10) },
                                                 { "cursor", query.value("cursor", 0) }
-                                            }).toJson(QJsonDocument::JsonFormat::Compact) },
+                               })).toJson(QJsonDocument::JsonFormat::Compact) },
         { "tab", 0 },
         { "order", query.value("order", 0) },
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/mlog/artist/video",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 歌手单曲
-const QVariantMap NeteaseCloudMusicApi::artists(QVariantMap query) {
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+QVariantMap Api::artists(QVariantMap query) {
+    return request(
+        POST,
         "https://music.163.com/weapi/v1/artist/" + query["id"].toString(),
         {},
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
+        }
+        );
+}
+
+// 批量请求接口
+QVariantMap Api::batch(QVariantMap query) {
+    QVariantMap data {
+        { "e_r", true }
+    };
+    for(auto i = query.begin(); i != query.end(); i++) {
+        if(i.key().indexOf("/api/") == 0) {
+            data[i.key()] = i.value();
+        }
+    }
+    return request(
+        POST,
+        "https://music.163.com/eapi/batch",
+        data,
+        {
+            { "crypto", "eapi" },
+            _PARAM,
+            { "url", "/api/batch" }
         }
         );
 }
 
 // 首页轮播图
-const QVariantMap NeteaseCloudMusicApi::banner(QVariantMap query) {
+QVariantMap Api::banner(QVariantMap query) {
     const auto type0 = query.value("type", 0).toInt();
     const QMap<int, QString> typeMap = {
         { 0, "pc" },
@@ -556,13 +538,13 @@ const QVariantMap NeteaseCloudMusicApi::banner(QVariantMap query) {
         { 3, "ipad" }
     };
     const QString type = typeMap.value(type0, "pc");
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/v2/banner/get",
         {
             { "clientType", type }
         },
-        QVariantMap {
+        {
             { "crypto", "api" },
             { "proxy", query["proxy"] },
             { "realIP", query["realIP"] }
@@ -570,8 +552,139 @@ const QVariantMap NeteaseCloudMusicApi::banner(QVariantMap query) {
         );
 }
 
+// 音乐日历
+QVariantMap Api::calendar(QVariantMap query) {
+    const QVariantMap data {
+        { "startTime", query.value("startTime", QDateTime::currentDateTime().toMSecsSinceEpoch()) },
+        { "endTime", query.value("endTime", QDateTime::currentDateTime().toMSecsSinceEpoch()) }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/mcalendar/detail",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 发送验证码
+QVariantMap Api::captcha_sent(QVariantMap query) {
+    const QVariantMap data {
+        { "ctcode", query.value("ctcode", "86") },
+        { "cellphone", query["cellphone"] }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/sms/captcha/sent",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 校验验证码
+QVariantMap Api::captcha_verify(QVariantMap query) {
+    const QVariantMap data {
+        { "ctcode", query.value("ctcode", "86") },
+        { "cellphone", query["phone"] },
+        { "captcha", query["captcha"] }
+    };
+    return request(
+        POST,
+        "https://music.163.com/weapi/sms/captcha/verify",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 检测手机号码是否已注册
+QVariantMap Api::cellphone_existence_check(QVariantMap query) {
+    const QVariantMap data {
+        { "cellphone", query["phone"] },
+        { "countrycode", query["countrycode"] }
+    };
+    return request(
+        POST,
+        "https://music.163.com/eapi/cellphone/existence/check",
+        data,
+        {
+            { "crypto", "eapi" },
+            _PARAM,
+            { "url", "/api/cellphone/existence/check" }
+        }
+        );
+}
+
+// 歌曲可用性
+QVariantMap Api::check_music(QVariantMap query) {
+    const QVariantMap data {
+        { "ids", QStringList { query["id"].toString() } },
+        { "br", query.value("br", 999000) }
+    };
+    QVariantMap result = request(
+        POST,
+        "https://music.163.com/weapi/song/enhance/player/url",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+    auto playable = false;
+    if(result["body"].toMap()["code"].toInt() == 200) {
+        if(result["body"].toMap()["data"].toList()[0].toMap()["code"].toInt() == 200) {
+            playable = true;
+        }
+    }
+    if(playable) {
+        result["body"] = QVariantMap {
+            { "code", 200 },
+            { "success", true },
+            { "message", "ok" }
+        };
+        return result;
+    }
+    else {
+        result["body"] = QVariantMap {
+            { "code", 200 },
+            { "success", false },
+            { "message", "亲爱的,暂无版权" }
+        };
+        return result;
+    }
+}
+
+// 云盘歌曲信息匹配纠正
+QVariantMap Api::cloud_match(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "ios";
+    cookie["appver"] = "8.10.90";
+    query["cookie"] = cookie;
+    const QVariantMap data {
+        { "userId", query["uid"] },
+        { "songId", query["sid"] },
+        { "adjustSongId", query["asid"] }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/cloud/user/song/match",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
 // 搜索
-const QVariantMap NeteaseCloudMusicApi::cloudsearch(QVariantMap query) {
+QVariantMap Api::cloudsearch(QVariantMap query) {
     const QVariantMap data {
         { "s", query["keywords"] },
         { "type", query.value("type", 1) },// 1: 单曲, 10: 专辑, 100: 歌手, 1000: 歌单, 1002: 用户, 1004: MV, 1006: 歌词, 1009: 电台, 1014: 视频
@@ -579,22 +692,20 @@ const QVariantMap NeteaseCloudMusicApi::cloudsearch(QVariantMap query) {
         { "offset", query.value("offset", 0) },
         { "total", true }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://interface.music.163.com/eapi/cloudsearch/pc",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "url", "/api/cloudsearch/pc" },
-            { "realIP", query["realIP"] }
+            _PARAM,
+            { "url", "/api/cloudsearch/pc" }
         }
         );
 }
 
 // 专辑评论
-const QVariantMap NeteaseCloudMusicApi::comment_album(QVariantMap query) {
+QVariantMap Api::comment_album(QVariantMap query) {
     QVariantMap cookie = query["cookie"].toMap();
     cookie["os"] = "pc";
     query["cookie"] = cookie;
@@ -604,21 +715,19 @@ const QVariantMap NeteaseCloudMusicApi::comment_album(QVariantMap query) {
         { "offset", query.value("offset", 0) },
         { "beforeTime", query.value("before", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/v1/resource/comments/R_AL_3_" + query["id"].toString(),
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 电台评论
-const QVariantMap NeteaseCloudMusicApi::comment_dj(QVariantMap query) {
+QVariantMap Api::comment_dj(QVariantMap query) {
     QVariantMap cookie = query["cookie"].toMap();
     cookie["os"] = "pc";
     query["cookie"] = cookie;
@@ -628,41 +737,133 @@ const QVariantMap NeteaseCloudMusicApi::comment_dj(QVariantMap query) {
         { "offset", query.value("offset", 0) },
         { "beforeTime", query.value("before", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/v1/resource/comments/A_DJ_1_" + query["id"].toString(),
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 获取动态评论
-const QVariantMap NeteaseCloudMusicApi::comment_event(QVariantMap query) {
+QVariantMap Api::comment_event(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 20) },
         { "offset", query.value("offset", 0) },
         { "beforeTime", query.value("before", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/v1/resource/comments/" + query["threadId"].toString(),
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
+        }
+        );
+}
+
+// 楼层评论
+QVariantMap Api::comment_floor(QVariantMap query) {
+    query["type"] = resourceTypeMap[query["type"].toString()];
+    const QVariantMap data {
+        { "parentCommentId", query["parentCommentId"] },
+        { "threadId", query["type"].toString() + query["id"].toString() },
+        { "time", query.value("time", -1) },
+        { "limit", query.value("limit", 20) }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/resource/comment/floor/get",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 热门评论
+QVariantMap Api::comment_hot(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "pc";
+    query["cookie"] = cookie;
+    query["type"] = resourceTypeMap[query["type"].toString()];
+    const QVariantMap data {
+        { "rid", query["id"] },
+        { "limit", query.value("limit", 20) },
+        { "offset", query.value("offset", 0) },
+        { "beforeTime", query.value("before", 0) }
+    };
+    return request(
+        POST,
+        "https://music.163.com/weapi/v1/resource/hotcomments/" + query["type"].toString() + query["id"].toString(),
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 评论抱一抱列表
+QVariantMap Api::comment_hug_list(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "ios";
+    cookie["appver"] = "8.10.90";
+    query["cookie"] = cookie;
+    query["type"] = resourceTypeMap[query.value("type", "0").toString()];
+    const QString threadId = query["type"].toString() + query["sid"].toString();
+    const QVariantMap data {
+        { "targetUserId", query["uid"] },
+        { "commentId", query["cid"] },
+        { "cursor", query.value("cursor", "-1") },
+        { "threadId", threadId },
+        { "pageNo", query.value("page", 1) },
+        { "idCursor", query.value("idCursor", -1) },
+        { "pageSize", query.value("pageSize", 100) }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/v2/resource/comments/hug/list",
+        data,
+        {
+            { "crypto", "api" },
+            _PARAM
+        }
+        );
+}
+
+// 点赞与取消点赞评论
+QVariantMap Api::comment_like(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "pc";
+    query["cookie"] = cookie;
+    query["t"] = query["t"].toInt() == 1 ? "like" : "unlike";
+    query["type"] = resourceTypeMap[query["type"].toString()];
+    QVariantMap data {
+        { "threadId", query["type"].toString() + query["sid"].toString() },
+        { "commentId", query["cid"] }
+    };
+    if(query["type"].toString() == "A_EV_2_") {
+        data["threadId"] = query["threadId"];
+    }
+    return request(
+        POST,
+        "https://music.163.com/weapi/v1/comment/" + query["t"].toString(),
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
         }
         );
 }
 
 // 歌曲评论
-const QVariantMap NeteaseCloudMusicApi::comment_music(QVariantMap query) {
+QVariantMap Api::comment_music(QVariantMap query) {
     QVariantMap cookie = query["cookie"].toMap();
     cookie["os"] = "pc";
     query["cookie"] = cookie;
@@ -672,21 +873,19 @@ const QVariantMap NeteaseCloudMusicApi::comment_music(QVariantMap query) {
         { "offset", query.value("offset", 0) },
         { "beforeTime", query.value("before", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/v1/resource/comments/R_SO_4_" + query["id"].toString(),
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // MV评论
-const QVariantMap NeteaseCloudMusicApi::comment_mv(QVariantMap query) {
+QVariantMap Api::comment_mv(QVariantMap query) {
     QVariantMap cookie = query["cookie"].toMap();
     cookie["os"] = "pc";
     query["cookie"] = cookie;
@@ -696,21 +895,66 @@ const QVariantMap NeteaseCloudMusicApi::comment_mv(QVariantMap query) {
         { "offset", query.value("offset", 0) },
         { "beforeTime", query.value("before", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/v1/resource/comments/R_MV_5_" + query["id"].toString(),
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
+        }
+        );
+}
+
+// 新版评论接口
+QVariantMap Api::comment_new(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "pc";
+    query["cookie"] = cookie;
+    query["type"] = resourceTypeMap[query["type"].toString()];
+    const QString threadId = query["type"].toString() + query["id"].toString();
+    const int pageSize = query.value("pageSize", 20).toInt();
+    const int pageNo = query.value("pageNo", 1).toInt();
+    int sortType = query.value("sortType", 99).toInt();
+    if(sortType == 1) {
+        sortType = 99;
+    }
+    QString cursor = "";
+    switch (sortType) {
+    case 99:
+        cursor = QString::number((pageNo - 1) * pageSize);
+        break;
+    case 2:
+        cursor = "normalHot#" + QString::number((pageNo - 1) * pageSize);
+        break;
+    case 3:
+        cursor = query.value("cursor", "0").toString();
+        break;
+    default:
+        break;
+    }
+    const QVariantMap data {
+        { "threadId", threadId },
+        { "pageNo", pageNo },
+        { "showInner", query.value("showInner", true) },
+        { "pageSize", pageSize },
+        { "cursor", cursor },
+        { "sortType", sortType } //99:按推荐排序,2:按热度排序,3:按时间排序
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/v2/resource/comments",
+        data,
+        {
+            { "crypto", "eapi" },
+            _PARAM,
+            { "url", "/api/v2/resource/comments" }
         }
         );
 }
 
 // 歌单评论
-const QVariantMap NeteaseCloudMusicApi::comment_playlist(QVariantMap query) {
+QVariantMap Api::comment_playlist(QVariantMap query) {
     QVariantMap cookie = query["cookie"].toMap();
     cookie["os"] = "pc";
     query["cookie"] = cookie;
@@ -720,21 +964,19 @@ const QVariantMap NeteaseCloudMusicApi::comment_playlist(QVariantMap query) {
         { "offset", query.value("offset", 0) },
         { "beforeTime", query.value("before", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/v1/resource/comments/A_PL_0_" + query["id"].toString(),
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 视频评论
-const QVariantMap NeteaseCloudMusicApi::comment_video(QVariantMap query) {
+QVariantMap Api::comment_video(QVariantMap query) {
     QVariantMap cookie = query["cookie"].toMap();
     cookie["os"] = "pc";
     query["cookie"] = cookie;
@@ -744,48 +986,76 @@ const QVariantMap NeteaseCloudMusicApi::comment_video(QVariantMap query) {
         { "offset", query.value("offset", 0) },
         { "beforeTime", query.value("before", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/v1/resource/comments/R_VI_62_" + query["id"].toString(),
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
+        }
+        );
+}
+
+// 发送与删除评论
+QVariantMap Api::comment(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "android";
+    query["cookie"] = cookie;
+    query["t"] = QMap<int, QString> {
+        { 1, "add" },
+        { 0, "delete" },
+        { 2, "reply" }
+    }[query["t"].toInt()];
+    query["type"] = resourceTypeMap[query["type"].toString()];
+    QVariantMap data {
+        { "threadId", query["type"].toString() + query["id"].toString() }
+    };
+    if(query["type"].toString() == "A_EV_2_") {
+        data["threadId"] = query["threadId"];
+    }
+    if(query["t"].toString() == "add") data["content"] = query["content"];
+    else if(query["t"].toString() == "delete") data["commentId"] = query["commentId"];
+    else if(query["t"].toString() == "reply") {
+        data["commentId"] = query["commentId"];
+        data["content"] = query["content"];
+    }
+    return request(
+        POST,
+        "https://music.163.com/weapi/resource/comments/" + query["t"].toString(),
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
         }
         );
 }
 
 // 国家编码列表
-const QVariantMap NeteaseCloudMusicApi::countries_code_list(QVariantMap query) {
+QVariantMap Api::countries_code_list(QVariantMap query) {
     const QVariantMap data { };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://interface3.music.163.com/eapi/lbs/countries/v1",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "url", "/api/lbs/countries/v1" },
-            { "realIP", query["realIP"] }
+            _PARAM,
+            { "url", "/api/lbs/countries/v1" }
         }
         );
 }
 
 // 获取达人用户信息
-const QVariantMap NeteaseCloudMusicApi::creator_authinfo_get(QVariantMap query) {
+QVariantMap Api::creator_authinfo_get(QVariantMap query) {
     const QVariantMap data { };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://interface.music.163.com/weapi/user/creator/authinfo/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/user/creator/authinfo/get" }
         }
         );
@@ -799,43 +1069,39 @@ const QVariantMap NeteaseCloudMusicApi::creator_authinfo_get(QVariantMap query) 
     重复签到 {'android': {'code': -2, 'msg': '重复签到'}, 'web': {'code': -2, 'msg': '重复签到'}}
     未登录 {'android': {'code': 301}, 'web': {'code': 301}}
     */
-const QVariantMap NeteaseCloudMusicApi::daily_signin(QVariantMap query) {
+QVariantMap Api::daily_signin(QVariantMap query) {
     const QVariantMap data {
         { "type", query.value("type", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/point/dailyTask",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 数字专辑详情
-const QVariantMap NeteaseCloudMusicApi::digitalAlbum_detail(QVariantMap query) {
+QVariantMap Api::digitalAlbum_detail(QVariantMap query) {
     const QVariantMap data {
         { "id", query["id"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/vipmall/albumproduct/detail",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 购买数字专辑
-const QVariantMap NeteaseCloudMusicApi::digitalAlbum_ordering(QVariantMap query) {
+QVariantMap Api::digitalAlbum_ordering(QVariantMap query) {
     const QVariantMap data {
         { "business", "Album" },
         { "paymentMethod", query["payment"] },
@@ -846,291 +1112,259 @@ const QVariantMap NeteaseCloudMusicApi::digitalAlbum_ordering(QVariantMap query)
                                                                                     } }) }.toJson(QJsonDocument::Compact) },
         { "from", "web" }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/ordering/web/digital",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 我的数字专辑
-const QVariantMap NeteaseCloudMusicApi::digitalAlbum_purchased(QVariantMap query) {
+QVariantMap Api::digitalAlbum_purchased(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 30) },
         { "offset", query.value("offset", 0) },
         { "total", true }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/digitalAlbum/purchased",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 数字专辑销量
-const QVariantMap NeteaseCloudMusicApi::digitalAlbum_sales(QVariantMap query) {
+QVariantMap Api::digitalAlbum_sales(QVariantMap query) {
     const QVariantMap data {
         { "albumIds", query["ids"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/vipmall/albumproduct/album/query/sales",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 电台banner
-const QVariantMap NeteaseCloudMusicApi::dj_banner(QVariantMap query) {
+QVariantMap Api::dj_banner(QVariantMap query) {
     const QVariantMap data { };
     QVariantMap cookie = query["cookie"].toMap();
     cookie["os"] = "pc";
     query["cookie"] = cookie;
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/djradio/banner/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 电台非热门类型
-const QVariantMap NeteaseCloudMusicApi::dj_category_excludehot(QVariantMap query) {
+QVariantMap Api::dj_category_excludehot(QVariantMap query) {
     const QVariantMap data { };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/djradio/category/excludehot",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 电台推荐类型
-const QVariantMap NeteaseCloudMusicApi::dj_category_recommend(QVariantMap query) {
+QVariantMap Api::dj_category_recommend(QVariantMap query) {
     const QVariantMap data { };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/djradio/home/category/recommend",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 电台分类列表
-const QVariantMap NeteaseCloudMusicApi::dj_catelist(QVariantMap query) {
+QVariantMap Api::dj_catelist(QVariantMap query) {
     const QVariantMap data { };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/djradio/category/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 电台详情
-const QVariantMap NeteaseCloudMusicApi::dj_detail(QVariantMap query) {
+QVariantMap Api::dj_detail(QVariantMap query) {
     const QVariantMap data {
         { "id", query["rid"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/djradio/v2/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 热门电台
-const QVariantMap NeteaseCloudMusicApi::dj_hot(QVariantMap query) {
+QVariantMap Api::dj_hot(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 30) },
         { "offset", query.value("offset", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/djradio/hot/v1",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 付费电台
-const QVariantMap NeteaseCloudMusicApi::dj_paygift(QVariantMap query) {
+QVariantMap Api::dj_paygift(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 30) },
         { "offset", query.value("offset", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/djradio/home/paygift/list?_nmclfl=1",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 电台个性推荐
-const QVariantMap NeteaseCloudMusicApi::dj_personalize_recommend(QVariantMap query) {
+QVariantMap Api::dj_personalize_recommend(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 6) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/djradio/personalize/rcmd",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 电台节目详情
-const QVariantMap NeteaseCloudMusicApi::dj_program_detail(QVariantMap query) {
+QVariantMap Api::dj_program_detail(QVariantMap query) {
     const QVariantMap data {
         { "id", query["id"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/dj/program/detail",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 电台24小时节目榜
-const QVariantMap NeteaseCloudMusicApi::dj_program_toplist_hours(QVariantMap query) {
+QVariantMap Api::dj_program_toplist_hours(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 100) }
         // 不支持 offset
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/djprogram/toplist/hours",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 电台节目榜
-const QVariantMap NeteaseCloudMusicApi::dj_program_toplist(QVariantMap query) {
+QVariantMap Api::dj_program_toplist(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 100) },
         { "offset", query.value("offset", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/program/toplist/v1",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 电台节目列表
-const QVariantMap NeteaseCloudMusicApi::dj_program(QVariantMap query) {
+QVariantMap Api::dj_program(QVariantMap query) {
     const QVariantMap data {
         { "radioId", query["rid"] },
         { "limit", query.value("limit", 30) },
         { "offset", query.value("offset", 0) },
         { "asc", query["asc"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/dj/program/byradio",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 类别热门电台
-const QVariantMap NeteaseCloudMusicApi::dj_radio_hot(QVariantMap query) {
+QVariantMap Api::dj_radio_hot(QVariantMap query) {
     const QVariantMap data {
         { "cateId", query["cateId"] },
         { "limit", query.value("limit", 30) },
         { "offset", query.value("offset", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/djradio/hot",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
@@ -1159,168 +1393,546 @@ const QVariantMap NeteaseCloudMusicApi::dj_radio_hot(QVariantMap query) {
     校园|教育 4001
     旅途|城市 12
 */
-const QVariantMap NeteaseCloudMusicApi::dj_recommend_type(QVariantMap query) {
+QVariantMap Api::dj_recommend_type(QVariantMap query) {
     const QVariantMap data {
         { "cateId", query["type"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/djradio/recommend",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 精选电台
-const QVariantMap NeteaseCloudMusicApi::dj_recommend(QVariantMap query) {
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+QVariantMap Api::dj_recommend(QVariantMap query) {
+    return request(
+        POST,
         "https://music.163.com/weapi/djradio/recommend/v1",
         {},
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 订阅与取消电台
-const QVariantMap NeteaseCloudMusicApi::dj_sub(QVariantMap query) {
+QVariantMap Api::dj_sub(QVariantMap query) {
     query["t"] = query["t"].toInt() == 1 ? "sub" : "unsub";
     const QVariantMap data {
         { "id", query["rid"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/djradio/" + query["t"].toString(),
         {},
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 订阅电台列表
-const QVariantMap NeteaseCloudMusicApi::dj_sublist(QVariantMap query) {
+QVariantMap Api::dj_sublist(QVariantMap query) {
     const QVariantMap data {
         { "limit", query.value("limit", 30) },
         { "offset", query.value("offset", 0) },
         { "total", true }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/djradio/get/subed",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
+        }
+        );
+}
+
+// 电台详情
+QVariantMap Api::dj_subscriber(QVariantMap query) {
+    const QVariantMap data {
+        { "time", query.value("time", "-1") },
+        { "id", query["id"] },
+        { "limit", query.value("limit", 20) },
+        { "total", true }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/djradio/subscriber",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 电台今日优选
+QVariantMap Api::dj_today_perfered(QVariantMap query) {
+    const QVariantMap data {
+        { "page", query.value("page", 0) }
+    };
+    return request(
+        POST,
+        "https://music.163.com/weapi/djradio/home/today/perfered",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 电台24小时主播榜
+QVariantMap Api::dj_toplist_hours(QVariantMap query) {
+    const QVariantMap data {
+        { "limit", query.value("limit", 100) }
+        // 不支持 offset
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/dj/toplist/hours",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 电台新人榜
+QVariantMap Api::dj_toplist_newcomer(QVariantMap query) {
+    const QVariantMap data {
+        { "limit", query.value("limit", 100) },
+        { "offset", query.value("offset", 0) }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/dj/toplist/newcomer",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 付费精品
+QVariantMap Api::dj_toplist_pay(QVariantMap query) {
+    const QVariantMap data {
+        { "limit", query.value("limit", 100) }
+        // 不支持 offset
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/djradio/toplist/pay",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 电台最热主播榜
+QVariantMap Api::dj_toplist_popular(QVariantMap query) {
+    const QVariantMap data {
+        { "limit", query.value("limit", 100) }
+        // 不支持 offset
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/dj/toplist/popular",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 新晋电台榜/热门电台榜
+QVariantMap Api::dj_toplist(QVariantMap query) {
+    const QVariantMap typeMap {
+        { "new", 0 },
+        { "hot", 1 }
+    };
+    const QVariantMap data {
+        { "limit", query.value("limit", 100) },
+        { "offset", query.value("offset", 0) },
+        { "type", typeMap.value(query.value("type", "new").toString(), "0") } //0为新晋,1为热门
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/djradio/toplist",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 删除动态
+QVariantMap Api::event_del(QVariantMap query) {
+    const QVariantMap data {
+        { "id", query["evId"] }
+    };
+    return request(
+        POST,
+        "https://music.163.com/eapi/event/delete",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 转发动态
+QVariantMap Api::event_forward(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "pc";
+    query["cookie"] = cookie;
+    const QVariantMap data {
+        { "forwards", query["forwards"] },
+        { "id", query["evId"] },
+        { "eventUserId", query["uid"] }
+    };
+    return request(
+        POST,
+        "https://music.163.com/weapi/event/forward",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 动态
+QVariantMap Api::event(QVariantMap query) {
+    const QVariantMap data {
+        { "pagesize", query.value("pagesize", 20) },
+        { "lasttime", query.value("lasttime", -1) }
+    };
+    return request(
+        POST,
+        "https://music.163.com/weapi/v1/event/get",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
         }
         );
 }
 
 // 粉丝年龄比例
-const QVariantMap NeteaseCloudMusicApi::fanscenter_basicinfo_age_get(QVariantMap query) {
+QVariantMap Api::fanscenter_basicinfo_age_get(QVariantMap query) {
     const QVariantMap data { };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://interface.music.163.com/weapi/fanscenter/basicinfo/age/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/fanscenter/basicinfo/age/get" }
         }
         );
 }
 
 // 粉丝性别比例
-const QVariantMap NeteaseCloudMusicApi::fanscenter_basicinfo_gender_get(QVariantMap query) {
+QVariantMap Api::fanscenter_basicinfo_gender_get(QVariantMap query) {
     const QVariantMap data { };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://interface.music.163.com/weapi/fanscenter/basicinfo/gender/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/fanscenter/basicinfo/gender/get" }
         }
         );
 }
 
 // 粉丝省份比例
-const QVariantMap NeteaseCloudMusicApi::fanscenter_basicinfo_province_get(QVariantMap query) {
+QVariantMap Api::fanscenter_basicinfo_province_get(QVariantMap query) {
     const QVariantMap data { };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://interface.music.163.com/weapi/fanscenter/basicinfo/province/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/fanscenter/basicinfo/province/get" }
         }
         );
 }
 
 // 粉丝数量
-const QVariantMap NeteaseCloudMusicApi::fanscenter_overview_get(QVariantMap query) {
+QVariantMap Api::fanscenter_overview_get(QVariantMap query) {
     const QVariantMap data { };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://interface.music.163.com/weapi/fanscenter/overview/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/fanscenter/overview/get" }
         }
         );
 }
 
 // 粉丝来源
-const QVariantMap NeteaseCloudMusicApi::fanscenter_trend_list(QVariantMap query) {
+QVariantMap Api::fanscenter_trend_list(QVariantMap query) {
     const QVariantMap data {
         { "startTime", query.value("startTime", QDateTime::currentDateTime().toMSecsSinceEpoch() - 7 * 24 * 3600 * 1000) },
         { "endTime", query.value("endTime", QDateTime::currentDateTime().toMSecsSinceEpoch()) },
         { "type", query.value("type", 0) }//新增关注:0 新增取关:1
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://interface.music.163.com/weapi/fanscenter/trend/list",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/fanscenter/trend/list" }
         }
         );
 }
 
+// 垃圾桶
+QVariantMap Api::fm_trash(QVariantMap query) {
+    const QVariantMap data {
+        { "songId", query["id"] }
+    };
+    return request(
+        POST,
+        "https://music.163.com/weapi/radio/trash/add?alg=RT&songId="
+            + query["id"].toString()
+            + QStringLiteral("&time=")
+            + query.value("time", 25).toString(),
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 关注与取消关注用户
+QVariantMap Api::follow(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "pc";
+    query["cookie"] = cookie;
+    query["t"] = query["t"].toInt() == 1 ? "follow" : "delfollow";
+    return request(
+        POST,
+        "https://music.163.com/weapi/user/"
+            + query["t"].toString()
+            + QStringLiteral("/")
+            + query["id"].toString(),
+        {},
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 根据nickname获取userid
+QVariantMap Api::get_userids(QVariantMap query) {
+    const QVariantMap data {
+        { "nicknames", query["nicknames"] }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/user/getUserIds",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 历史每日推荐歌曲详情
+QVariantMap Api::history_recommend_songs_detail(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "ios";
+    query["cookie"] = cookie;
+    const QVariantMap data {
+        { "date", query.value("date", "") }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/discovery/recommend/songs/history/detail",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 历史每日推荐歌曲
+QVariantMap Api::history_recommend_songs(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "ios";
+    query["cookie"] = cookie;
+    const QVariantMap data { };
+    return request(
+        POST,
+        "https://music.163.com/api/discovery/recommend/songs/history/recent",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 首页-发现 block page
+// 这个接口为移动端接口，首页-发现页，数据结构可以参考 https://github.com/hcanyz/flutter-netease-music-api/blob/master/lib/src/api/uncategorized/bean.dart#L259 HomeBlockPageWrap
+// query.refresh 是否刷新数据
+QVariantMap Api::homepage_block_page(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "ios";
+    cookie["appver"] = "8.10.90";
+    query["cookie"] = cookie;
+    const QVariantMap data {
+        { "refresh", query.value("refresh", false) },
+        { "cursor", query["cursor"] }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/homepage/block/page",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 首页-发现 dragon ball
+// 这个接口为移动端接口，首页-发现页（每日推荐、歌单、排行榜 那些入口）
+// 数据结构可以参考 https://github.com/hcanyz/flutter-netease-music-api/blob/master/lib/src/api/uncategorized/bean.dart#L290 HomeDragonBallWrap
+// !需要登录或者游客登录，非登录返回 []
+QVariantMap Api::homepage_dragon_ball(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "ios";
+    cookie["appver"] = "8.10.90";
+    query["cookie"] = cookie;
+    const QVariantMap data { };
+    return request(
+        POST,
+        "https://music.163.com/eapi/homepage/dragon/ball/static",
+        data,
+        {
+            { "crypto", "eapi" },
+            _PARAM,
+            { "url", "/api/homepage/dragon/ball/static"}
+        }
+        );
+}
+
+//热门话题
+QVariantMap Api::hot_topic(QVariantMap query) {
+    const QVariantMap data {
+        { "limit", query.value("limit", 20) },
+        { "offset", query.value("offset", 0) }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/act/hot",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 抱一抱评论
+QVariantMap Api::hug_comment(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "ios";
+    cookie["appver"] = "8.10.90";
+    query["cookie"] = cookie;
+    query["type"] = resourceTypeMap[query.value("type", 0).toString()];
+    const QString threadId = query["type"].toString() + query["sid"].toString();
+    const QVariantMap data {
+        { "targetUserId", query["uid"] },
+        { "commentId", query["cid"] },
+        { "threadId", threadId }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/v2/resource/comments/hug/listener",
+        data,
+        {
+            { "crypto", "api" },
+            _PARAM
+        }
+        );
+}
+
+// 红心与取消红心歌曲
+QVariantMap Api::like(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "pc";
+    cookie["appver"] = "2.9.7";
+    query["cookie"] = cookie;
+    query["like"] = query["like"].toString() == "false" ? false : true;
+    const QVariantMap data {
+        { "alg", "itembased" },
+        { "trackId", query["id"] },
+        { "like", query["like"] },
+        { "time", "3" }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/radio/like",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 喜欢音乐列表
+QVariantMap Api::likelist(QVariantMap query) {
+    const QVariantMap data {
+        { "uid", query["uid"] }
+    };
+    return request(
+        POST,
+        "https://music.163.com/weapi/song/like/get",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
 // 手机登录
-const QVariantMap NeteaseCloudMusicApi::login_cellphone(QVariantMap query) {
+QVariantMap Api::login_cellphone(QVariantMap query) {
     QVariantMap cookie = query["cookie"].toMap();
     cookie["os"] = "ios";
     cookie["appver"] = "8.10.90";
@@ -1335,16 +1947,14 @@ const QVariantMap NeteaseCloudMusicApi::login_cellphone(QVariantMap query) {
                                  QCryptographicHash::hash(query["password"].toString().toUtf8(), QCryptographicHash::Md5).toHex())) },
         { "rememberLogin", "true" }
     };
-    QVariantMap result = createRequest(
-        QNetworkAccessManager::PostOperation,
+    QVariantMap result = request(
+        POST,
         "https://music.163.com/weapi/login/cellphone",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
             { "ua", "pc" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
     if(result["body"].toMap()["code"].toInt() == 200) {
@@ -1359,24 +1969,137 @@ const QVariantMap NeteaseCloudMusicApi::login_cellphone(QVariantMap query) {
     return result;
 }
 
+// 二维码检测扫码状态接口
+QVariantMap Api::login_qr_check(QVariantMap query) {
+    const QVariantMap data {
+        { "key", query["key"] },
+        { "type", 1 }
+    };
+    QVariantMap result = request(
+        POST,
+        "https://music.163.com/weapi/login/qrcode/client/login",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+    auto body = result["body"].toMap();
+    body["cookie"] = result["cookie"];
+    result = QVariantMap {
+        { "status", 200 },
+        { "body", body },
+        { "cookie", result["cookie"] }
+    };
+    return result;
+}
+
+// 二维码 key 生成接口
+QVariantMap Api::login_qr_key(QVariantMap query) {
+    const QVariantMap data {
+        { "type", 1 }
+    };
+    QVariantMap result = request(
+        POST,
+        "https://music.163.com/weapi/login/qrcode/unikey",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+    result = QVariantMap {
+        { "status", 200 },
+        { "body", QVariantMap {
+                     { "data", result["body"] },
+                     { "code", 200}
+                 } },
+        { "cookie", result["cookie"] }
+    };
+    return result;
+}
+
+// 二维码生成接口
+QVariantMap Api::login_qr_create(QVariantMap query) {
+    const QString url = "https://music.163.com/login?codekey=" + query["key"].toString();
+    auto result = QVariantMap {
+        { "code", 200 },
+        { "status", 200 },
+        { "body", QVariantMap {
+                     { "code", 200},
+                     { "data", QVariantMap {
+                                  { "qrurl", url }
+                              } }
+                 } }
+    };
+    return result;
+}
+
+// 登录刷新
+QVariantMap Api::login_refresh(QVariantMap query) {
+    QVariantMap result = request(
+        POST,
+        "https://music.163.com/weapi/login/token/refresh",
+        {},
+        {
+            { "crypto", "weapi" },
+            { "ua", "pc" },
+            _PARAM
+        }
+        );
+    if(result["body"].toMap()["code"].toInt() == 200) {
+        auto body = result["body"].toMap();
+        body["cookie"] = result["cookie"];
+        result = QVariantMap {
+            { "status", 200 },
+            { "body", body },
+            { "cookie", result["cookie"] }
+        };
+    }
+    return result;
+}
+
+// 登录状态
+QVariantMap Api::login_status(QVariantMap query) {
+    QVariantMap result = request(
+        POST,
+        "https://music.163.com/weapi/w/nuser/account/get",
+        {},
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+    if(result["body"].toMap()["code"].toInt() == 200) {
+        auto body = result["body"].toMap();
+        body["cookie"] = result["cookie"];
+        result = QVariantMap {
+            { "status", 200 },
+            { "body", {
+                         { "data", result["body"] }
+                     } },
+            { "cookie", result["cookie"] }
+        };
+    }
+    return result;
+}
+
 // 退出登录
-const QVariantMap NeteaseCloudMusicApi::logout(QVariantMap query) {
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+QVariantMap Api::logout(QVariantMap query) {
+    return request(
+        POST,
         "https://music.163.com/weapi/logout",
         {},
-        QVariantMap {
+        {
             { "crypto", "eapi" },
             { "ua", "pc" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 新版歌词 - 包含逐字歌词
-const QVariantMap NeteaseCloudMusicApi::lyric_new(QVariantMap query) {
+QVariantMap Api::lyric_new(QVariantMap query) {
     const QVariantMap data {
         { "id", query["id"] },
         { "cp", false},
@@ -1388,22 +2111,20 @@ const QVariantMap NeteaseCloudMusicApi::lyric_new(QVariantMap query) {
         { "ytv", 0 },
         { "yrv", 0 }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://interface3.music.163.com/eapi/song/lyric/v1",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/song/lyric/v1" }
         }
         );
 }
 
 // 歌词
-const QVariantMap NeteaseCloudMusicApi::lyric(QVariantMap query) {
+QVariantMap Api::lyric(QVariantMap query) {
     QVariantMap cookie = query["cookie"].toMap();
     cookie["os"] = "ios";
     query["cookie"] = cookie;
@@ -1415,39 +2136,35 @@ const QVariantMap NeteaseCloudMusicApi::lyric(QVariantMap query) {
         { "rv", -1 },
         { "kv", -1 }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/song/lyric?_nmclfl=1",
         data,
-        QVariantMap {
+        {
             { "crypto", "api" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 重复昵称检测
-const QVariantMap NeteaseCloudMusicApi::nickname_check(QVariantMap query) {
+QVariantMap Api::nickname_check(QVariantMap query) {
     QVariantMap data {
         { "nickname", query["nickname"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/nickname/duplicated",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 游客登录
-const QVariantMap NeteaseCloudMusicApi::register_anonimous(QVariantMap query) {
+QVariantMap Api::register_anonimous(QVariantMap query) {
     auto cookie = query["cookie"].toMap();
     cookie["os"] = "iOS";
     query["cookie"] = cookie;
@@ -1479,15 +2196,13 @@ const QVariantMap NeteaseCloudMusicApi::register_anonimous(QVariantMap query) {
                               { "username", username },
                               };
 
-    QVariantMap result = createRequest(
-        QNetworkAccessManager::PostOperation,
+    QVariantMap result = request(
+        POST,
         "https://music.163.com/api/register/anonimous",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
     if(result["body"].toMap()["code"].toInt() == 200) {
@@ -1503,16 +2218,14 @@ const QVariantMap NeteaseCloudMusicApi::register_anonimous(QVariantMap query) {
 }
 
 // 相关歌单
-const QVariantMap NeteaseCloudMusicApi::related_playlist(QVariantMap query) {
-    QVariantMap result = createRequest(
-        QNetworkAccessManager::GetOperation,
+QVariantMap Api::related_playlist(QVariantMap query) {
+    QVariantMap result = request(
+        GET,
         "https://music.163.com/playlist?id=" + query["id"].toString(),
         {},
-        QVariantMap {
+        {
             { "ua", "pc" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
     QRegularExpression pattern("<div class=\"cver u-cover u-cover-3\">[\\s\\S]*?<img src=\"([^\"]+)\">[\\s\\S]*?<a class=\"sname f-fs1 s-fc0\" href=\"([^\"]+)\"[^>]*>([^<]+?)<\\/a>[\\s\\S]*?<a class=\"nm nm f-thide s-fc3\" href=\"([^\"]+)\"[^>]*>([^<]+?)<\\/a>");
@@ -1552,7 +2265,7 @@ const QVariantMap NeteaseCloudMusicApi::related_playlist(QVariantMap query) {
 }
 
 // 搜索
-const QVariantMap NeteaseCloudMusicApi::search(QVariantMap query) {
+QVariantMap Api::search(QVariantMap query) {
     if (query.contains("type") && query["type"].toString() == "2000") {
         const QVariantMap data {
             { "keyword", query["keywords"] },
@@ -1560,15 +2273,13 @@ const QVariantMap NeteaseCloudMusicApi::search(QVariantMap query) {
             { "limit", query.value("limit", 20) },
             { "offset", query.value("offset", 0) }
         };
-        return createRequest(
-            QNetworkAccessManager::PostOperation,
+        return request(
+            POST,
             "https://music.163.com/api/search/voice/get",
             data,
-            QVariantMap {
+            {
                 { "crypto", "weapi" },
-                { "cookie", query["cookie"] },
-                { "proxy", query["proxy"] },
-                { "realIP", query["realIP"] }
+                _PARAM
             }
             );
     }
@@ -1578,34 +2289,30 @@ const QVariantMap NeteaseCloudMusicApi::search(QVariantMap query) {
         { "limit", query.value("limit", 20) },
         { "offset", query.value("offset", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/search/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 获取客户端歌曲下载链接
-const QVariantMap NeteaseCloudMusicApi::song_download_url(QVariantMap query) {
+QVariantMap Api::song_download_url(QVariantMap query) {
     QVariantMap data {
         { "id", query["id"] },
         { "br", query.value("br", 999000) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://interface.music.163.com/eapi/song/enhance/download/url",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/song/enhance/download/url" }
         }
         );
@@ -1614,7 +2321,7 @@ const QVariantMap NeteaseCloudMusicApi::song_download_url(QVariantMap query) {
 // 歌曲链接 - v1
 // 此版本不再采用 br 作为音质区分的标准
 // 而是采用 standard, exhigh, lossless, hires, jyeffect(高清环绕声), sky(沉浸环绕声), jymaster(超清母带) 进行音质判断
-const QVariantMap NeteaseCloudMusicApi::song_url_v1(QVariantMap query) {
+QVariantMap Api::song_url_v1(QVariantMap query) {
     QVariantMap data {
         { "ids", query["id"].toList() },
         { "level", query["level"].toString() },
@@ -1623,122 +2330,108 @@ const QVariantMap NeteaseCloudMusicApi::song_url_v1(QVariantMap query) {
     if(data["level"].toString() == "sky") {
         data["immerseType"] = "c51";
     }
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://interface.music.163.com/eapi/song/enhance/player/url/v1",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/song/enhance/player/url/v1" }
         }
         );
 }
 
 // 音乐百科基础信息
-const QVariantMap NeteaseCloudMusicApi::song_wiki_summary(QVariantMap query) {
+QVariantMap Api::song_wiki_summary(QVariantMap query) {
     QVariantMap data {
         { "songId", query["id"].toInt() }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://interface3.music.163.com/eapi/music/wiki/home/song/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/song/play/about/block/page" }
         }
         );
 }
 
 // 年度听歌报告2017-2022
-const QVariantMap NeteaseCloudMusicApi::summary_annual(QVariantMap query) {
+QVariantMap Api::summary_annual(QVariantMap query) {
     QVariantMap data { };
-    const QString key = QList<QString>({ "2017", "2018", "2019 "}).indexOf(query["year"].toString()) > -1 ? "userdata" : "data";
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    const QString key = QStringList { "2017", "2018", "2019 "}.indexOf(query["year"].toString()) > -1 ? "userdata" : "data";
+    return request(
+        POST,
         "https://music.163.com/weapi/activity/summary/annual/" + query["year"].toString() + "/" + key,
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/activity/summary/annual/" + query["year"].toString() + "/" + key }
         }
         );
 }
 
 // 获取达人达标信息
-const QVariantMap NeteaseCloudMusicApi::threshold_detail_get(QVariantMap query) {
+QVariantMap Api::threshold_detail_get(QVariantMap query) {
     const QVariantMap data { };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/influencer/web/apply/threshold/detail/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/influencer/web/apply/threshold/detail/get" }
         }
         );
 }
 
 // 所有榜单介绍
-const QVariantMap NeteaseCloudMusicApi::toplist(QVariantMap query) {
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+QVariantMap Api::toplist(QVariantMap query) {
+    return request(
+        POST,
         "https://music.163.com/api/toplist",
         {},
-        QVariantMap {
+        {
             { "crypto", "api" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 专辑简要百科信息
-const QVariantMap NeteaseCloudMusicApi::ugc_album_get(QVariantMap query) {
+QVariantMap Api::ugc_album_get(QVariantMap query) {
     const QVariantMap data {
         { "albumId", query["id"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/rep/ugc/album/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/rep/ugc/album/get" }
         }
         );
 }
 
 // 歌手简要百科信息
-const QVariantMap NeteaseCloudMusicApi::ugc_artist_get(QVariantMap query) {
+QVariantMap Api::ugc_artist_get(QVariantMap query) {
     const QVariantMap data {
         { "artistId", query["id"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/rep/ugc/artist/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/rep/ugc/artist/get" }
         }
         );
@@ -1746,80 +2439,152 @@ const QVariantMap NeteaseCloudMusicApi::ugc_artist_get(QVariantMap query) {
 
 // 搜索歌手
 // 可传关键字或者歌手id
-const QVariantMap NeteaseCloudMusicApi::ugc_artist_search(QVariantMap query) {
+QVariantMap Api::ugc_artist_search(QVariantMap query) {
     const QVariantMap data {
         { "keyword", query["keyword"] },
         { "limit", query.value("limit", 40) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/rep/ugc/artist/search",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // mv简要百科信息
-const QVariantMap NeteaseCloudMusicApi::ugc_mv_get(QVariantMap query) {
+QVariantMap Api::ugc_mv_get(QVariantMap query) {
     const QVariantMap data {
         { "mvId", query["id"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/rep/ugc/mv/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/rep/ugc/mv/get" }
         }
         );
 }
 
 // 歌曲简要百科信息
-const QVariantMap NeteaseCloudMusicApi::ugc_song_get(QVariantMap query) {
+QVariantMap Api::ugc_song_get(QVariantMap query) {
     const QVariantMap data {
         { "songId", query["id"] }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/weapi/rep/ugc/song/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "eapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] },
+            _PARAM,
             { "url", "/api/rep/ugc/song/get" }
         }
         );
 }
 
 // 获取账号信息
-const QVariantMap NeteaseCloudMusicApi::user_account(QVariantMap query) {
+QVariantMap Api::user_account(QVariantMap query) {
     const QVariantMap data {};
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/nuser/account/get",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
+        }
+        );
+}
+
+// 用户创建的电台
+QVariantMap Api::user_audio(QVariantMap query) {
+    const QVariantMap data {
+        { "userId", query["uid"] }
+    };
+    return request(
+        POST,
+        "https://music.163.com/weapi/djradio/get/byuser",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 获取用户绑定信息
+QVariantMap Api::user_binding(QVariantMap query) {
+    const QVariantMap data { };
+    return request(
+        POST,
+        "https://music.163.com/api/v1/user/bindings/" + query["uid"].toString(),
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 云盘歌曲删除
+QVariantMap Api::user_cloud_del(QVariantMap query) {
+    const QVariantMap data {
+        { "songIds", QVariantList{ query["id"] } }
+    };
+    return request(
+        POST,
+        "https://music.163.com/weapi/cloud/del",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 云盘数据详情
+QVariantMap Api::user_cloud_detail(QVariantMap query) {
+    const auto id = query["id"].toString().replace("\s", "").split(",");
+    const QVariantMap data {
+        { "songIds", id }
+    };
+    return request(
+        POST,
+        "https://music.163.com/weapi/v1/cloud/get/byids",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 云盘数据
+QVariantMap Api::user_cloud(QVariantMap query) {
+    const QVariantMap data {
+        { "limit", query.value("limit", 30) },
+        { "offset", query.value("offset", 0) }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/v1/cloud/get",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
         }
         );
 }
 
 // 获取用户历史评论
-const QVariantMap NeteaseCloudMusicApi::user_comment_history(QVariantMap query) {
+QVariantMap Api::user_comment_history(QVariantMap query) {
     QVariantMap cookie = query["cookie"].toMap();
     cookie["os"] = "ios";
     cookie["appver"] = "8.10.90";
@@ -1831,51 +2596,272 @@ const QVariantMap NeteaseCloudMusicApi::user_comment_history(QVariantMap query) 
         { "user_id", query["uid"] },
         { "time", query.value("time", 0) }
     };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/comment/user/comment/history",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
         }
         );
 }
 
 // 用户详情
-const QVariantMap NeteaseCloudMusicApi::user_detail(QVariantMap query) {
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+QVariantMap Api::user_detail(QVariantMap query) {
+    return request(
+        POST,
         "https://music.163.com/weapi/v1/user/detail/" + query["uid"].toString(),
         {},
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
+        }
+        );
+}
+
+// 用户电台节目
+QVariantMap Api::user_dj(QVariantMap query) {
+    const QVariantMap data {
+        { "limit", query.value("limit", 30) },
+        { "offset", query.value("offset", 0) }
+    };
+    return request(
+        POST,
+        "https://music.163.com/weapi/dj/program/" + query["uid"].toString(),
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 用户动态
+QVariantMap Api::user_event(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "ios";
+    cookie["appver"] = "8.10.90";
+    query["cookie"] = cookie;
+    const QVariantMap data {
+        { "getcounts", true },
+        { "time", query.value("lasttime", -1) },
+        { "limit", query.value("limit", 30) },
+        { "total", false }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/event/get/" + query["uid"].toString(),
+        data,
+        {
+            { "crypto", "api" },
+            _PARAM
+        }
+        );
+}
+
+// 关注TA的人(粉丝)
+QVariantMap Api::user_followeds(QVariantMap query) {
+    const QVariantMap data {
+        { "userId", query["uid"] },
+        { "time", "0" },
+        { "limit", query.value("limit", 30) },
+        { "offset", query.value("offset", 0) },
+        { "getcounts", "true" }
+    };
+    return request(
+        POST,
+        "https://music.163.com/eapi/user/getfolloweds/" + query["uid"].toString(),
+        data,
+        {
+            { "crypto", "eapi" },
+            _PARAM,
+            { "url", "/api/user/getfolloweds" }
+        }
+        );
+}
+
+// TA关注的人(关注)
+QVariantMap Api::user_follows(QVariantMap query) {
+    const QVariantMap data {
+        { "offset", query.value("offset", 0) },
+        { "limit", query.value("limit", 30) },
+        { "order", true }
+    };
+    return request(
+        POST,
+        "https://music.163.com/weapi/user/getfollows/" + query["uid"].toString(),
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 获取用户等级信息
+QVariantMap Api::user_level(QVariantMap query) {
+    const QVariantMap data { };
+    return request(
+        POST,
+        "https://music.163.com/weapi/user/level",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
         }
         );
 }
 
 // 用户歌单
-const QVariantMap NeteaseCloudMusicApi::user_playlist(QVariantMap query) {
+QVariantMap Api::user_playlist(QVariantMap query) {
     const QVariantMap data {
         { "uid", query["uid"] },
         { "limit", query.value("limit", 30) },
         { "offset", query.value("offset", 0) },
         { "includeVideo", true },
         };
-    return createRequest(
-        QNetworkAccessManager::PostOperation,
+    return request(
+        POST,
         "https://music.163.com/api/user/playlist",
         data,
-        QVariantMap {
+        {
             { "crypto", "weapi" },
-            { "cookie", query["cookie"] },
-            { "proxy", query["proxy"] },
-            { "realIP", query["realIP"] }
+            _PARAM
+        }
+        );
+}
+
+// 听歌排行
+QVariantMap Api::user_record(QVariantMap query) {
+    const QVariantMap data {
+        { "uid", query["uid"] },
+        { "type", query.value("type", 0) } // 1: 最近一周, 0: 所有时间
+    };
+    return request(
+        POST,
+        "https://music.163.com/weapi/v1/play/record",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 用户绑定手机
+QVariantMap Api::user_replacephone(QVariantMap query) {
+    const QVariantMap data {
+        { "phone", query["phone"] },
+        { "captcha", query["captcha"] },
+        { "oldcaptcha", query["oldcaptcha"] },
+        { "countrycode", query.value("countrycode", 86) }
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/user/replaceCellphone",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 收藏计数
+QVariantMap Api::user_subcount(QVariantMap query) {
+    return request(
+        POST,
+        "https://music.163.com/weapi/subcount",
+        {},
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 编辑用户信息
+QVariantMap Api::user_update(QVariantMap query) {
+    QVariantMap cookie = query["cookie"].toMap();
+    cookie["os"] = "ios";
+    cookie["appver"] = "8.10.90";
+    query["cookie"] = cookie;
+    const QVariantMap data {
+        { "birthday", query["birthday"] },
+        { "city", query["city"] },
+        { "gender", query["gender"] },
+        { "nickname", query["nickname"] },
+        { "province", query["province"] },
+        { "signature", query["signature"] },
+    };
+    return request(
+        POST,
+        "https://music.163.com/api/user/profile/update",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 云贝 todo 任务
+QVariantMap Api::yunbei_tasks_todo(QVariantMap query) {
+    const QVariantMap data {};
+    // /api/point/today/get
+    return request(
+        POST,
+        "https://music.163.com/api/usertool/task/todo/query",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 云贝所有任务
+QVariantMap Api::yunbei_tasks(QVariantMap query) {
+    const QVariantMap data {};
+    // /api/point/today/get
+    return request(
+        POST,
+        "https://music.163.com/api/usertool/task/list/all",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 云贝今日签到信息
+QVariantMap Api::yunbei_today(QVariantMap query) {
+    const QVariantMap data {};
+    // /api/point/today/get
+    return request(
+        POST,
+        "https://music.163.com/api/point/today/get",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
+        }
+        );
+}
+
+// 云贝
+QVariantMap Api::yunbei(QVariantMap query) {
+    const QVariantMap data {};
+    // /api/point/today/get
+    return request(
+        POST,
+        "https://music.163.com/api/point/signed/get",
+        data,
+        {
+            { "crypto", "weapi" },
+            _PARAM
         }
         );
 }
