@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BUILD_SHARED_LIBS ON)
 # Provides dependency openssl
 #find_package(OpenSSL QUIET)
-if(NOT OPENSSL_FOUND)
+if(1#[[NOT OPENSSL_FOUND]])
     add_subdirectory(
         ${CMAKE_CURRENT_SOURCE_DIR}/openssl-cmake
         ${CMAKE_CURRENT_BINARY_DIR}/openssl-cmake
